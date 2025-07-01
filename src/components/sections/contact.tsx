@@ -1,17 +1,42 @@
+"use client";
+
 import { socialLinks } from '@/lib/data';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 export function Contact() {
+  const FADE_UP_ANIMATION_VARIANTS = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring' } },
+  };
+
   return (
-    <section id="contact" className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
+    <motion.section
+      id="contact"
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true }}
+      variants={{
+        hidden: {},
+        show: {
+          transition: {
+            staggerChildren: 0.15,
+          },
+        },
+      }}
+      className="w-full py-12 md:py-24 lg:py-32 bg-secondary"
+    >
       <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
-        <div className="space-y-3">
+        <motion.div variants={FADE_UP_ANIMATION_VARIANTS} className="space-y-3">
           <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline">Get in Touch</h2>
           <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
             Have a project in mind or just want to say hello? I'd love to hear from you.
           </p>
-        </div>
-        <div className="flex justify-center gap-4">
+        </motion.div>
+        <motion.div
+          variants={FADE_UP_ANIMATION_VARIANTS}
+          className="flex justify-center gap-4"
+        >
           {socialLinks.map((link) => (
             <Link
               href={link.url}
@@ -24,8 +49,8 @@ export function Contact() {
               <span className="sr-only">{link.name}</span>
             </Link>
           ))}
-        </div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }
