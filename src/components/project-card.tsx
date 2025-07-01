@@ -33,9 +33,9 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
   const controls = useAnimation();
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-    x.set(e.clientX - left - width / 2);
-    y.set(e.clientY - top - height / 2);
+    const rect = e.currentTarget.getBoundingClientRect();
+    x.set(e.clientX - rect.left - rect.width / 2);
+    y.set(e.clientY - rect.top - rect.height / 2);
   };
   
   const handleMouseLeave = () => {
@@ -46,10 +46,8 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
   const handleContextMenu = (e: MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     controls.start({
-      rotateY: '360deg',
-      transition: { duration: 0.8, ease: "easeInOut" },
-    }).then(() => {
-      controls.set({ rotateY: '0deg' });
+      rotateY: [0, 360],
+      transition: { duration: 0.7, ease: "easeInOut" },
     });
   };
 
