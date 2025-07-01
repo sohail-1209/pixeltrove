@@ -36,7 +36,12 @@ export function Projects() {
     try {
       const projectsCollection = collection(db, 'projects');
       const projectSnapshot = await getDocs(projectsCollection);
-      const projectList = projectSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
+      const projectList = projectSnapshot.docs
+        .map(doc => {
+          if (!doc.exists()) return null;
+          return { id: doc.id, ...doc.data() } as Project;
+        })
+        .filter((p): p is Project => p !== null);
       setProjects(projectList);
     } catch (error) {
       console.error("Error fetching projects: ", error);
@@ -88,17 +93,14 @@ export function Projects() {
   const handleSubmitProject = async (submittedProjectData: Omit<Project, 'id'>) => {
     try {
       if (editingProject && editingProject.id) {
-        // Editing existing project
         const projectRef = doc(db, 'projects', editingProject.id);
         await updateDoc(projectRef, submittedProjectData);
       } else {
-        // Adding new project
         await addDoc(collection(db, 'projects'), submittedProjectData);
       }
     } catch (error) {
         console.error("Error saving project: ", error);
     } finally {
-        // Reset state, close form, and refetch projects
         setEditingProject(null);
         setIsProjectFormOpen(false);
         fetchProjects();
@@ -187,7 +189,7 @@ export function Projects() {
                     </div>
                 </motion.div>
               ))
-            ) : (
+            ) : projects.length > 0 ? (
                 projects.map((project, i) => (
                   <motion.div
                     key={project.id || i}
@@ -201,6 +203,16 @@ export function Projects() {
                     />
                   </motion.div>
                 ))
+            ) : (
+               <motion.div 
+                variants={FADE_UP_ANIMATION_VARIANTS} 
+                className="col-span-full text-center text-muted-foreground py-12"
+              >
+                <p>No projects found.</p>
+                <p className="text-sm mt-2">
+                  {isAdmin ? "Click 'Add Project' to get started." : "Log in as an admin to add projects."}
+                </p>
+              </motion.div>
             )}
           </div>
         </div>
