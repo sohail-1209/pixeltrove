@@ -146,7 +146,7 @@ export function About() {
                       key={skill}
                       variant="default"
                       className={cn(
-                        "border-transparent text-sm py-1.5 px-4 transition-all duration-300 hover:scale-105",
+                        "border-transparent text-sm py-1.5 px-4 transition-all duration-300 hover:scale-105 font-handwriting",
                         colorInfo.bg,
                         colorInfo.text,
                         colorInfo.glow
