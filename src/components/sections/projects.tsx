@@ -12,30 +12,32 @@ export function Projects() {
     show: { opacity: 1, y: 0, transition: { type: 'spring' } },
   };
 
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
-  const onWheel = (e: WheelEvent) => {
+  const onWheel = (e: WheelEvent<HTMLDivElement>) => {
     const el = sectionRef.current;
-    if (el) {
-      if (el.scrollHeight <= el.clientHeight) {
-        return;
-      }
+    if (!el) return;
 
-      const isScrollingUp = e.deltaY < 0;
-      const isScrollingDown = e.deltaY > 0;
-      const isAtTop = el.scrollTop === 0;
-      const isAtBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + 1;
-
-      if ((isAtTop && isScrollingUp) || (isAtBottom && isScrollingDown)) {
-        return;
-      }
-
-      e.stopPropagation();
+    if (el.scrollHeight <= el.clientHeight) {
+      return;
     }
+
+    const isScrollingUp = e.deltaY < 0;
+    const isScrollingDown = e.deltaY > 0;
+    const isAtTop = el.scrollTop === 0;
+    const isAtBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + 1;
+
+    if ((isAtTop && isScrollingUp) || (isAtBottom && isScrollingDown)) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+    el.scrollTop += e.deltaY;
   };
 
   return (
-    <motion.section
+    <motion.div
       ref={sectionRef}
       onWheel={onWheel}
       initial="hidden"
@@ -85,6 +87,6 @@ export function Projects() {
           ))}
         </div>
       </div>
-    </motion.section>
+    </motion.div>
   );
 }
