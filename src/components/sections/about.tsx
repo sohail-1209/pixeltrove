@@ -128,7 +128,7 @@ export function About() {
         }}
         className="w-full h-screen flex items-center bg-secondary"
       >
-        <div className="container px-4 md:px-6">
+        <div className="container relative z-10 px-4 md:px-6">
           <div className="grid gap-10 lg:grid-cols-2 items-center">
             <motion.div variants={FADE_UP_ANIMATION_VARIANTS} className="space-y-4">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">About Me</h2>
