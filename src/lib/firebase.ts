@@ -4,7 +4,7 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyC1QK7Z4UaSyC87LFGjaVLK9bnQRI1I0IY",
+  apiKey: "AIzaSyCcbiUWaItfFBL690cFQAuUuDX4Yk6oGzo",
   authDomain: "noirfolio-8eda9.firebaseapp.com",
   projectId: "noirfolio-8eda9",
   storageBucket: "noirfolio-8eda9.firebasestorage.app",
