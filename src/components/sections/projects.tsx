@@ -132,7 +132,7 @@ export function Projects() {
         <div className="container px-4 md:px-6">
           <motion.div
             variants={FADE_UP_ANIMATION_VARIANTS}
-            className="flex flex-col items-center justify-center space-y-4 text-center"
+            className="flex flex-col items-center justify-center space-y-4 text-center relative z-20"
           >
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Featured Projects</h2>
