@@ -9,11 +9,21 @@ import { Button } from "@/components/ui/button";
 import { AdminLoginDialog } from "@/components/admin-login-dialog";
 import { ProjectEditDialog } from "@/components/project-edit-dialog";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, addDoc, updateDoc, doc } from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { motion, useTransform, type MotionValue, useMotionValue } from "framer-motion";
 import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<number> }) {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -24,6 +34,7 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
   const [isProjectFormOpen, setIsProjectFormOpen] = useState(false);
   
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [deletingProject, setDeletingProject] = useState<Project | null>(null);
   const { toast } = useToast();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -43,8 +54,16 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
     };
     
     measure();
+    const resizeObserver = new ResizeObserver(measure);
+    if (contentRef.current) {
+      resizeObserver.observe(contentRef.current);
+    }
     window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', measure);
+    };
   }, [projects, loading]);
 
   const scrollableDistance = Math.max(0, contentHeight - containerHeight);
@@ -105,6 +124,29 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
     setEditingProject(project);
     setIsProjectFormOpen(true);
   };
+
+  const handleDeleteInitiated = (project: Project) => {
+    setDeletingProject(project);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (!deletingProject || !deletingProject.id) return;
+
+    try {
+        await deleteDoc(doc(db, 'projects', deletingProject.id));
+        toast({ title: "Project deleted successfully!" });
+        fetchProjects(); // Re-fetch to update list
+    } catch (error) {
+        console.error("Error deleting project: ", error);
+        toast({
+            variant: "destructive",
+            title: "Failed to delete project",
+            description: "An error occurred while deleting the project.",
+        });
+    } finally {
+        setDeletingProject(null);
+    }
+  };
   
   const handleSubmitProject = async (submittedProjectData: Omit<Project, 'id'>) => {
     try {
@@ -141,6 +183,25 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
         onSubmit={handleSubmitProject}
         project={editingProject}
       />
+      <AlertDialog open={!!deletingProject} onOpenChange={(isOpen) => !isOpen && setDeletingProject(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the project "{deletingProject?.title}".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeletingProject(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleDeleteConfirmed}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       
       <div className="flex-1 flex relative overflow-hidden">
         {/* Right-side container for Admin icon and scroll text */}
@@ -178,7 +239,7 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
           </div>
           
           {/* Scrollable grid */}
-          <div ref={containerRef} className={cn("flex-grow scrollbar-hide", hasAnimatedScroll ? "overflow-hidden" : "overflow-y-auto")}>
+          <div ref={containerRef} className={cn("flex-grow", hasAnimatedScroll ? "overflow-hidden" : "overflow-y-auto scrollbar-hide")}>
             <motion.div style={hasAnimatedScroll ? { y: internalY } : {}}>
               <div ref={contentRef} className="container px-4 md:px-6 pb-12">
                   <div 
@@ -206,6 +267,7 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
                               {...project}
                               isAdmin={isAdmin}
                               onEdit={() => handleEditProject(project)}
+                              onDelete={() => handleDeleteInitiated(project)}
                             />
                         ))
                     ) : (

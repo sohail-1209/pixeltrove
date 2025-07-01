@@ -4,7 +4,7 @@
 import { useState, type FC, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowUpRight, Pencil, RefreshCw } from 'lucide-react';
+import { ArrowUpRight, Pencil, RefreshCw, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from './ui/button';
@@ -20,9 +20,10 @@ interface ProjectCardProps {
   aiHint: string;
   isAdmin?: boolean;
   onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, tags, link, aiHint, isAdmin, onEdit }) => {
+export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, tags, link, aiHint, isAdmin, onEdit, onDelete }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   const ref = useRef<HTMLDivElement>(null);
@@ -113,9 +114,14 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
                   </Link>
                   <div className="flex items-center">
                     {isAdmin && (
-                      <Button variant="ghost" size="icon" onClick={onEdit} aria-label="Edit Project">
-                        <Pencil className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
-                      </Button>
+                      <>
+                        <Button variant="ghost" size="icon" onClick={onEdit} aria-label="Edit Project">
+                          <Pencil className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={onDelete} aria-label="Delete Project">
+                          <Trash2 className="h-5 w-5 text-muted-foreground transition-colors hover:text-destructive" />
+                        </Button>
+                      </>
                     )}
                     <Button variant="ghost" size="icon" onClick={handleFlip} aria-label="Flip Card">
                       <RefreshCw className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
