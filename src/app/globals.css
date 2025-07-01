@@ -76,8 +76,8 @@
 }
 
 @layer utilities {
-  .clip-hexagon {
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  .clip-octagon {
+    clip-path: polygon(29% 0, 71% 0, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0 71%, 0 29%);
   }
   .scrollbar-hide::-webkit-scrollbar {
       display: none;

@@ -125,7 +125,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
             <div className="[backface-visibility:hidden]">
               <Card className="h-full flex flex-col group">
                 <CardContent className="p-6 flex-grow">
-                  <div className="aspect-video overflow-hidden clip-hexagon mb-4">
+                  <div className="aspect-video overflow-hidden clip-octagon mb-4">
                     <Image
                       src={image}
                       alt={title}
