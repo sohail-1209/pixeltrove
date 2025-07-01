@@ -22,20 +22,38 @@ export default function Home() {
   });
 
   return (
-    <div ref={containerRef} style={{ height: `${sections.length * 200}vh` }} className="bg-background">
+    // Increased height to give more scroll room for pauses
+    <div ref={containerRef} style={{ height: `${sections.length * 250}vh` }} className="bg-background">
       <div className="sticky top-0 h-screen" style={{ perspective: '1200px' }}>
         {sections.map((section, i) => {
           const numSections = sections.length;
           
-          const sectionStart = i / numSections;
-          const sectionEnd = (i + 1) / numSections;
-          const prevSectionStart = (i - 1) / numSections;
-          
-          const inputRange = [prevSectionStart, sectionStart, sectionEnd];
+          // Each section's scroll is divided into a "transition" part and a "pause" part.
+          // 0.5 means the transition takes up 50% of the section's scroll duration.
+          // The other 50% is the pause.
+          const transitionPoint = 0.5;
+          const sectionScrollDuration = 1 / numSections;
+          const transitionDuration = sectionScrollDuration * transitionPoint;
 
-          const opacity = useTransform(scrollYProgress, inputRange, [0, 1, 0]);
-          const scale = useTransform(scrollYProgress, inputRange, [0.8, 1, 0.8]);
-          const z = useTransform(scrollYProgress, inputRange, [-800, 0, -800]);
+          // Points in the scroll progress (0 to 1) that define the animation
+          const fadeInStart = i * sectionScrollDuration - transitionDuration;
+          const fadeInEnd = i * sectionScrollDuration;
+          const fadeOutStart = fadeInEnd + (sectionScrollDuration - transitionDuration);
+          const fadeOutEnd = fadeOutStart + transitionDuration;
+
+          const isFirst = i === 0;
+          const isLast = i === numSections - 1;
+
+          const inputRange = [
+            isFirst ? 0 : fadeInStart,
+            fadeInEnd,
+            fadeOutStart,
+            isLast ? 1 : fadeOutEnd
+          ];
+          
+          const opacity = useTransform(scrollYProgress, inputRange, [isFirst ? 1 : 0, 1, 1, isLast ? 1 : 0]);
+          const scale = useTransform(scrollYProgress, inputRange, [isFirst ? 1 : 0.8, 1, 1, isLast ? 1 : 0.8]);
+          const z = useTransform(scrollYProgress, inputRange, [isFirst ? 0 : -800, 0, 0, isLast ? 0 : -800]);
           
           return (
             <motion.div
