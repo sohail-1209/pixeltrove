@@ -24,7 +24,10 @@ export function Projects() {
   
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [isProjectFormOpen, setIsProjectFormOpen] = useState(false);
-  const [editingProject, setEditingProject] = useState<{ project: Project; index: number } | null>(null);
+  
+  // Refactored state for clarity
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [editingProjectIndex, setEditingProjectIndex] = useState<number | null>(null);
 
   const onWheel = (e: WheelEvent<HTMLDivElement>) => {
     const el = sectionRef.current;
@@ -54,25 +57,29 @@ export function Projects() {
 
   const handleAddNewProject = () => {
     setEditingProject(null);
+    setEditingProjectIndex(null);
     setIsProjectFormOpen(true);
   };
   
   const handleEditProject = (project: Project, index: number) => {
-    setEditingProject({ project, index });
+    setEditingProject(project);
+    setEditingProjectIndex(index);
     setIsProjectFormOpen(true);
   };
   
   const handleSubmitProject = (submittedProjectData: Project) => {
-    if (editingProject) {
+    if (editingProjectIndex !== null) {
       // Editing existing project
       const newProjects = [...projects];
-      newProjects[editingProject.index] = submittedProjectData;
+      newProjects[editingProjectIndex] = submittedProjectData;
       setProjects(newProjects);
     } else {
       // Adding new project
       setProjects((prevProjects) => [submittedProjectData, ...prevProjects]);
     }
+    // Reset state
     setEditingProject(null);
+    setEditingProjectIndex(null);
   };
 
   return (
@@ -95,7 +102,7 @@ export function Projects() {
         open={isProjectFormOpen} 
         onOpenChange={setIsProjectFormOpen}
         onSubmit={handleSubmitProject}
-        project={editingProject ? editingProject.project : null}
+        project={editingProject}
       />
       <div className="absolute top-1/2 right-4 md:right-8 -translate-y-1/2 flex flex-col items-center gap-4 text-muted-foreground z-10">
         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => setIsLoginOpen(true)}>
