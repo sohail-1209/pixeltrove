@@ -82,7 +82,7 @@ export function Projects() {
           </div>
         </motion.div>
         <div 
-          className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 mt-12"
+          className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 mt-12 relative z-20"
         >
           {projects.map((project, i) => (
             <motion.div
