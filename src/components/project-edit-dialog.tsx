@@ -85,22 +85,30 @@ export function ProjectEditDialog({ open, onOpenChange, onSubmit, project }: Pro
         description: currentData.description,
         tags: tagsArray,
       });
-      
-      form.setValue('title', refinedData.refinedTitle, { shouldValidate: true });
-      form.setValue('description', refinedData.refinedDescription, { shouldValidate: true });
-      form.setValue('tags', refinedData.refinedTags.join(', '), { shouldValidate: true });
 
-      toast({
-        title: "Content improvised!",
-        description: "AI has improved the project details.",
-      });
+      if ('error' in refinedData) {
+        toast({
+          variant: "destructive",
+          title: "AI Improvisation Failed",
+          description: refinedData.error,
+        });
+      } else {
+        form.setValue('title', refinedData.refinedTitle, { shouldValidate: true });
+        form.setValue('description', refinedData.refinedDescription, { shouldValidate: true });
+        form.setValue('tags', refinedData.refinedTags.join(', '), { shouldValidate: true });
+
+        toast({
+          title: "Content improvised!",
+          description: "AI has improved the project details.",
+        });
+      }
 
     } catch (error) {
       console.error("AI improvisation failed:", error);
       toast({
         variant: "destructive",
         title: "AI Improvisation Failed",
-        description: error instanceof Error ? error.message : "Could not improvise the content. Please try again.",
+        description: "An unexpected network error occurred. Please try again.",
       });
     } finally {
       setIsImprovising(false);

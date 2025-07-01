@@ -16,12 +16,22 @@ const RefineProjectInputSchema = z.object({
 });
 type RefineProjectInput = z.infer<typeof RefineProjectInputSchema>;
 
-const RefineProjectOutputSchema = z.object({
+// Success output schema
+const RefinedDataSchema = z.object({
   refinedTitle: z.string().describe('The refined title, professionally worded and capitalized.'),
   refinedDescription: z.string().describe('The refined description, professionally worded and capitalized.'),
   refinedTags: z.array(z.string()).describe('The list of tags, with standardized capitalization and duplicates removed.'),
 });
-type RefineProjectOutput = z.infer<typeof RefineProjectOutputSchema>;
+
+// Error output schema
+const RefineErrorSchema = z.object({
+    error: z.string(),
+});
+
+// The union of the two is the actual output of the flow
+const RefineProjectOutputSchema = z.union([RefinedDataSchema, RefineErrorSchema]);
+export type RefineProjectOutput = z.infer<typeof RefineProjectOutputSchema>;
+
 
 export async function refineProject(input: RefineProjectInput): Promise<RefineProjectOutput> {
   return refineProjectFlow(input);
@@ -30,7 +40,7 @@ export async function refineProject(input: RefineProjectInput): Promise<RefinePr
 const prompt = ai.definePrompt({
   name: 'refineProjectPrompt',
   input: {schema: RefineProjectInputSchema},
-  output: {schema: RefineProjectOutputSchema},
+  output: {schema: RefinedDataSchema}, // Prompt only outputs success data
   prompt: `You are an expert copywriter and portfolio consultant. Your task is to improvise and improve the provided project details to make them sound more professional, engaging, and impactful for a tech portfolio.
 
 **Project Details to Improvise:**
@@ -51,7 +61,7 @@ const refineProjectFlow = ai.defineFlow(
   {
     name: 'refineProjectFlow',
     inputSchema: RefineProjectInputSchema,
-    outputSchema: RefineProjectOutputSchema,
+    outputSchema: RefineProjectOutputSchema, // Use the union schema
   },
   async (input) => {
     try {
@@ -60,9 +70,9 @@ const refineProjectFlow = ai.defineFlow(
     } catch (error) {
       console.error("Error in refineProjectFlow:", error);
       if (error instanceof Error && error.message.includes('503')) {
-        throw new Error("The AI service is currently busy. Please try again in a moment.");
+        return { error: "The AI service is currently busy. Please try again in a moment." };
       }
-      throw new Error("An unexpected error occurred while improvising content.");
+      return { error: "An unexpected error occurred while improvising content." };
     }
   }
 );
