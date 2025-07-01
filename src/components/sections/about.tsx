@@ -79,7 +79,13 @@ export function About() {
     try {
       const skillsDocRef = doc(db, 'about', 'skillsData');
       await setDoc(skillsDocRef, { list: newSkills });
-      setSkills(newSkills);
+
+      // Re-fetch the data to ensure consistency
+      const docSnap = await getDoc(skillsDocRef);
+      if (docSnap.exists() && docSnap.data().list) {
+        setSkills(docSnap.data().list);
+      }
+
       setIsDialogOpen(false);
       toast({
         title: "Skills updated successfully!",
