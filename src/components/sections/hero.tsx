@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { SparklingText } from '../sparkling-text';
 import { AiSymbol } from '../ai-symbol';
+import { TypeAnimation } from 'react-type-animation';
 
 export function Hero() {
   const FADE_DOWN_ANIMATION_VARIANTS = {
@@ -39,12 +40,27 @@ export function Hero() {
               Creative Developer & Designer
             </SparklingText>
           </motion.div>
-          <motion.p
+          <motion.div
             variants={FADE_DOWN_ANIMATION_VARIANTS}
-            className="mx-auto max-w-[700px] text-muted-foreground md:text-xl"
+            className="mx-auto max-w-[700px] text-muted-foreground md:text-xl min-h-[56px] flex items-center justify-center"
           >
-            Building elegant digital experiences with a focus on clean code and user-centric design.
-          </motion.p>
+            <TypeAnimation
+              sequence={[
+                "I'm Sohail.",
+                2000,
+                "I'm a passionate developer.",
+                2000,
+                "I build beautiful and functional web applications.",
+                2000,
+                "I thrive on solving complex problems.",
+                2000,
+              ]}
+              wrapper="span"
+              speed={50}
+              repeat={Infinity}
+              cursor={true}
+            />
+          </motion.div>
           <motion.div
             variants={FADE_DOWN_ANIMATION_VARIANTS}
             className="flex justify-center"
