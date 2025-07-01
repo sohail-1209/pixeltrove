@@ -25,7 +25,6 @@ export function Projects() {
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [isProjectFormOpen, setIsProjectFormOpen] = useState(false);
   
-  // Refactored state for clarity
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingProjectIndex, setEditingProjectIndex] = useState<number | null>(null);
 
@@ -77,9 +76,10 @@ export function Projects() {
       // Adding new project
       setProjects((prevProjects) => [submittedProjectData, ...prevProjects]);
     }
-    // Reset state
+    // Reset state and close form
     setEditingProject(null);
     setEditingProjectIndex(null);
+    setIsProjectFormOpen(false);
   };
 
   return (

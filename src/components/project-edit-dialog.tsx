@@ -75,7 +75,6 @@ export function ProjectEditDialog({ open, onOpenChange, onSubmit, project }: Pro
       tags: data.tags.split(",").map(tag => tag.trim()),
     };
     onSubmit(finalProjectData);
-    onOpenChange(false);
   };
   
   return (
