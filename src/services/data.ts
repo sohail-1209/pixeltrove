@@ -26,7 +26,7 @@ export async function getProfileData(): Promise<{ skills: string[]; projects: Pr
   try {
     const projectsCollection = collection(db, 'projects');
     const projectSnapshot = await getDocs(projectsCollection);
-    projects = projectSnapshot.docs
+    const allProjects = projectSnapshot.docs
       .map(doc => {
         const data = doc.data();
         if (
@@ -41,6 +41,16 @@ export async function getProfileData(): Promise<{ skills: string[]; projects: Pr
         return { id: doc.id, ...data } as Project;
       })
       .filter((p): p is Project => p !== null);
+
+    // De-duplicate projects based on title to prevent duplicates in the resume.
+    const uniqueProjects = new Map<string, Project>();
+    for (const project of allProjects) {
+        if (!uniqueProjects.has(project.title)) {
+            uniqueProjects.set(project.title, project);
+        }
+    }
+    projects = Array.from(uniqueProjects.values());
+
   } catch (error) {
     console.error("Error fetching projects for resume generation: ", error);
     projects = []; // Fallback
