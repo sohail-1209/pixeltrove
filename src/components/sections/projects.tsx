@@ -38,9 +38,9 @@ export function Projects() {
   };
 
   return (
+    // This is the main section container. It's relative so we can absolutely position the scroll indicator.
+    // The framer-motion props are here to animate the entire section as a whole.
     <motion.div
-      ref={sectionRef}
-      onWheel={onWheel}
       initial="hidden"
       whileInView="show"
       viewport={{ once: true }}
@@ -52,8 +52,9 @@ export function Projects() {
           },
         },
       }}
-      className="relative w-full h-screen overflow-y-auto py-24"
+      className="relative w-full h-screen"
     >
+      {/* Sticky scroll indicator. Positioned absolutely to the parent motion.div */}
       <div className="absolute top-1/2 right-4 md:right-8 -translate-y-1/2 flex flex-col items-center gap-4 text-muted-foreground z-10 pointer-events-none">
         <span className="text-xs font-semibold tracking-widest uppercase [writing-mode:vertical-rl] transform rotate-180">
           Scroll
@@ -69,37 +70,46 @@ export function Projects() {
           <ArrowDown className="w-4 h-4" />
         </motion.div>
       </div>
-      <div className="container px-4 md:px-6">
-        <motion.div
-          variants={FADE_UP_ANIMATION_VARIANTS}
-          className="flex flex-col items-center justify-center space-y-4 text-center"
-        >
-          <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Featured Projects</h2>
-            <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Here are some of the projects I'm proud to have worked on. Each one represents a unique challenge and a learning opportunity.
-            </p>
+
+      {/* This is the inner container that will actually scroll. */}
+      {/* It has the overflow property and the wheel event handler. */}
+      <div
+        ref={sectionRef}
+        onWheel={onWheel}
+        className="w-full h-screen overflow-y-auto py-24"
+      >
+        <div className="container px-4 md:px-6">
+          <motion.div
+            variants={FADE_UP_ANIMATION_VARIANTS}
+            className="flex flex-col items-center justify-center space-y-4 text-center"
+          >
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Featured Projects</h2>
+              <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                Here are some of the projects I'm proud to have worked on. Each one represents a unique challenge and a learning opportunity.
+              </p>
+            </div>
+          </motion.div>
+          <div 
+            className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 mt-12 relative z-20"
+          >
+            {projects.map((project, i) => (
+              <motion.div
+                key={project.title}
+                variants={FADE_UP_ANIMATION_VARIANTS}
+                custom={i}
+              >
+                <ProjectCard
+                  title={project.title}
+                  description={project.description}
+                  image={project.image}
+                  tags={project.tags}
+                  link={project.link}
+                  aiHint={project.aiHint}
+                />
+              </motion.div>
+            ))}
           </div>
-        </motion.div>
-        <div 
-          className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 mt-12 relative z-20"
-        >
-          {projects.map((project, i) => (
-            <motion.div
-              key={project.title}
-              variants={FADE_UP_ANIMATION_VARIANTS}
-              custom={i}
-            >
-              <ProjectCard
-                title={project.title}
-                description={project.description}
-                image={project.image}
-                tags={project.tags}
-                link={project.link}
-                aiHint={project.aiHint}
-              />
-            </motion.div>
-          ))}
         </div>
       </div>
     </motion.div>
