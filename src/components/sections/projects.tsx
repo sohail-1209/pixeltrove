@@ -106,7 +106,7 @@ export function Projects() {
 
   return (
     <section
-      className="relative w-full h-screen bg-background overflow-y-auto"
+      className="w-full h-screen bg-background flex flex-col"
     >
       <AdminLoginDialog open={isLoginOpen} onOpenChange={setIsLoginOpen} onLoginSuccess={handleLoginSuccess} />
       <ProjectEditDialog 
@@ -116,17 +116,17 @@ export function Projects() {
         project={editingProject}
       />
       
-      <div className="absolute top-8 right-4 md:right-8 flex flex-col items-center gap-4 text-muted-foreground z-10">
-        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => setIsLoginOpen(true)}>
-          <Shield className="h-6 w-6" />
-          <span className="sr-only">Admin Login</span>
-        </Button>
-      </div>
+      {/* Header section */}
+      <div className="relative pt-12 pb-8">
+        <div className="container px-4 md:px-6">
+          <div className="absolute top-8 right-4 md:right-8 flex flex-col items-center gap-4 text-muted-foreground z-10">
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => setIsLoginOpen(true)}>
+              <Shield className="h-6 w-6" />
+              <span className="sr-only">Admin Login</span>
+            </Button>
+          </div>
 
-      <div className="container px-4 md:px-6 py-24">
-          <div
-            className="flex flex-col items-center justify-center space-y-4 text-center z-20 relative"
-          >
+          <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Featured Projects</h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -139,44 +139,51 @@ export function Projects() {
               </Button>
             )}
           </div>
-          <div 
-            className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 mt-12 relative z-20"
-          >
-            {loading ? (
-              Array.from({ length: 2 }).map((_, i) => (
-                <div key={i}>
-                    <div className="flex flex-col h-full rounded-lg border bg-card shadow-sm p-6 space-y-4">
-                      <Skeleton className="aspect-video w-full" />
-                      <Skeleton className="h-6 w-3/4" />
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-5/6" />
-                      <div className="flex flex-wrap gap-2 pt-4">
-                          <Skeleton className="h-6 w-1/4" />
-                          <Skeleton className="h-6 w-1/4" />
+        </div>
+      </div>
+      
+      {/* Scrollable grid */}
+      <div className="flex-grow overflow-y-auto">
+        <div className="container px-4 md:px-6 pb-12">
+            <div 
+              className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2"
+            >
+              {loading ? (
+                Array.from({ length: 2 }).map((_, i) => (
+                  <div key={i}>
+                      <div className="flex flex-col h-full rounded-lg border bg-card shadow-sm p-6 space-y-4">
+                        <Skeleton className="aspect-video w-full" />
+                        <Skeleton className="h-6 w-3/4" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-5/6" />
+                        <div className="flex flex-wrap gap-2 pt-4">
+                            <Skeleton className="h-6 w-1/4" />
+                            <Skeleton className="h-6 w-1/4" />
+                        </div>
                       </div>
-                    </div>
-                </div>
-              ))
-            ) : projects.length > 0 ? (
-                projects.map((project) => (
-                    <ProjectCard
-                      key={project.id}
-                      {...project}
-                      isAdmin={isAdmin}
-                      onEdit={() => handleEditProject(project)}
-                    />
+                  </div>
                 ))
-            ) : (
-               <div
-                className="col-span-full text-center text-muted-foreground py-12"
-              >
-                <p>No projects found.</p>
-                <p className="text-sm mt-2">
-                  {isAdmin ? "Click 'Add Project' to get started." : "Log in as an admin to add projects."}
-                </p>
-              </div>
-            )}
-          </div>
+              ) : projects.length > 0 ? (
+                  projects.map((project) => (
+                      <ProjectCard
+                        key={project.id}
+                        {...project}
+                        isAdmin={isAdmin}
+                        onEdit={() => handleEditProject(project)}
+                      />
+                  ))
+              ) : (
+                <div
+                  className="col-span-full text-center text-muted-foreground py-12"
+                >
+                  <p>No projects found.</p>
+                  <p className="text-sm mt-2">
+                    {isAdmin ? "Click 'Add Project' to get started." : "Log in as an admin to add projects."}
+                  </p>
+                </div>
+              )}
+            </div>
+        </div>
       </div>
     </section>
   );
