@@ -4,7 +4,6 @@
 import { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { skills as defaultSkills } from "@/lib/data";
-import { motion } from "framer-motion";
 import { Button } from '@/components/ui/button';
 import { Pencil } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -98,11 +97,6 @@ export function About() {
     }
   };
 
-  const FADE_UP_ANIMATION_VARIANTS = {
-    hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring' } },
-  };
-
   return (
     <>
       {isAdmin && (
@@ -113,29 +107,18 @@ export function About() {
           onSubmit={handleSkillsSubmit}
         />
       )}
-      <motion.section
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true }}
-        variants={{
-          hidden: {},
-          show: {
-            transition: {
-              staggerChildren: 0.15,
-            },
-          },
-        }}
+      <section
         className="w-full h-screen flex items-center bg-secondary"
       >
         <div className="container px-4 md:px-6">
           <div className="grid gap-10 lg:grid-cols-2 items-center">
-            <motion.div variants={FADE_UP_ANIMATION_VARIANTS} className="space-y-4">
+            <div className="space-y-4">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">About Me</h2>
               <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 I'm a passionate developer with a knack for creating beautiful and functional web applications. With a background in both design and engineering, I bridge the gap between aesthetics and technology to deliver exceptional user experiences. I thrive on solving complex problems and continuously learning new skills.
               </p>
-            </motion.div>
-            <motion.div variants={FADE_UP_ANIMATION_VARIANTS} className="flex flex-col items-start space-y-4">
+            </div>
+            <div className="flex flex-col items-start space-y-4">
                <div className="flex items-center gap-4 w-full">
                  <h3 className="text-2xl font-bold tracking-tighter font-headline">My Skills</h3>
                  {isAdmin && (
@@ -149,25 +132,19 @@ export function About() {
                 {loading ? (
                   Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-7 w-24 rounded-full" />)
                 ) : skills.length > 0 ? (
-                  skills.map((skill, i) => (
-                    <motion.div
-                      key={skill}
-                      custom={i}
-                      variants={FADE_UP_ANIMATION_VARIANTS}
-                    >
-                      <Badge variant="default" className="text-sm py-1 px-3">
-                        {skill}
-                      </Badge>
-                    </motion.div>
+                  skills.map((skill) => (
+                    <Badge key={skill} variant="default" className="text-sm py-1 px-3">
+                      {skill}
+                    </Badge>
                   ))
                 ) : (
                   <p className="text-muted-foreground">No skills listed. {isAdmin && "Click the edit button to add some!"}</p>
                 )}
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
-      </motion.section>
+      </section>
     </>
   );
 }
