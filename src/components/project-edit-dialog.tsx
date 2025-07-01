@@ -100,7 +100,7 @@ export function ProjectEditDialog({ open, onOpenChange, onSubmit, project }: Pro
       toast({
         variant: "destructive",
         title: "AI Improvisation Failed",
-        description: "Could not improvise the content. Please try again.",
+        description: error instanceof Error ? error.message : "Could not improvise the content. Please try again.",
       });
     } finally {
       setIsImprovising(false);

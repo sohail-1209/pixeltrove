@@ -54,7 +54,15 @@ const refineProjectFlow = ai.defineFlow(
     outputSchema: RefineProjectOutputSchema,
   },
   async (input) => {
-    const {output} = await prompt(input);
-    return output!;
+    try {
+      const {output} = await prompt(input);
+      return output!;
+    } catch (error) {
+      console.error("Error in refineProjectFlow:", error);
+      if (error instanceof Error && error.message.includes('503')) {
+        throw new Error("The AI service is currently busy. Please try again in a moment.");
+      }
+      throw new Error("An unexpected error occurred while improvising content.");
+    }
   }
 );
