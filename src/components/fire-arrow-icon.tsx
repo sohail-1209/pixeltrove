@@ -38,7 +38,7 @@ export const FireArrowIcon = ({ className }: { className?: string }) => {
       <line x1="4" y1="12" x2="10" y2="18" stroke="currentColor" strokeWidth="1.5" />
       
       {/* Fire */}
-      <g transform="translate(38, 12) scale(0.6)">
+      <g transform="translate(38, 12) scale(1.0)">
         <path className="fire-1" d="M0-10C5-15,10-5,10,0c0,5-5,15-10,10C-5,15-10,5-10,0C-10-5-5-15,0-10z" />
         <path className="fire-2" d="M0-6C3-9,6-3,6,0c0,3-3,9-6,6C-3,9-6,3-6,0C-6-3-3-9,0-6z" />
         <path className="fire-3" d="M0-3C1.5-4.5,3-1.5,3,0c0,1.5-1.5,4.5-3,3C-1.5,4.5-3,1.5-3,0C-3-1.5-1.5-4.5,0-3z" />

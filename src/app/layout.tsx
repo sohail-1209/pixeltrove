@@ -6,7 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { ScrollProgressBar } from '@/components/scroll-progress-bar';
 
 export const metadata: Metadata = {
-  title: 'Noirfolio | A Minimalist Portfolio',
+  title: 'PiXelTrove | A Minimalist Portfolio',
   description: 'A modern and minimalist portfolio built with Next.js and Tailwind CSS.',
 };
 
