@@ -11,6 +11,7 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { SkillsEditDialog } from '../skills-edit-dialog';
+import { cn } from '@/lib/utils';
 
 export function About() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -18,6 +19,12 @@ export function About() {
   const [skills, setSkills] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  const skillColorClasses = [
+    { bg: 'bg-accent', text: 'text-accent-foreground', glow: 'shadow-[0_0_10px_2px_hsl(var(--accent)/0.5)]' },
+    { bg: 'bg-pink_accent', text: 'text-destructive-foreground', glow: 'shadow-[0_0_10px_2px_hsl(var(--pink-accent)/0.5)]' },
+    { bg: 'bg-violet_accent', text: 'text-destructive-foreground', glow: 'shadow-[0_0_10px_2px_hsl(var(--violet-accent)/0.5)]' },
+  ];
 
   useEffect(() => {
     const checkAdminAndFetchSkills = async () => {
@@ -128,15 +135,26 @@ export function About() {
                    </Button>
                  )}
                </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-3">
                 {loading ? (
-                  Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-7 w-24 rounded-full" />)
+                  Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-8 w-24 rounded-full" />)
                 ) : skills.length > 0 ? (
-                  skills.map((skill) => (
-                    <Badge key={skill} variant="default" className="text-sm py-1 px-3">
+                  skills.map((skill, index) => {
+                    const colorInfo = skillColorClasses[index % skillColorClasses.length];
+                    return (
+                    <Badge
+                      key={skill}
+                      variant="default"
+                      className={cn(
+                        "border-transparent text-sm py-1.5 px-4 transition-all duration-300 hover:scale-105",
+                        colorInfo.bg,
+                        colorInfo.text,
+                        colorInfo.glow
+                      )}
+                    >
                       {skill}
                     </Badge>
-                  ))
+                  )})
                 ) : (
                   <p className="text-muted-foreground">No skills listed. {isAdmin && "Click the edit button to add some!"}</p>
                 )}
