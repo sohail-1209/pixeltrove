@@ -220,18 +220,25 @@ const generateResumeFlow = ai.defineFlow(
         projects: projects.map(({title, description, tags, link}) => ({title, description, tags, link})),
     };
 
-    const response = await prompt(resumeData);
+    try {
+        const response = await prompt(resumeData);
+        let output = response.text;
 
-    let output = response.text;
+        if (!output) {
+            console.error("Resume generation failed: AI returned null or empty output.");
+            return "<h2>Error: Resume Generation Failed</h2><p>The AI was unable to generate the resume content at this time. This could be due to a temporary service issue. Please try again later.</p>";
+        }
+        
+        // Defensive cleanup to remove Markdown code fences if the model adds them
+        output = output.trim().replace(/^```html\s*/, '').replace(/\s*```$/, '').trim();
 
-    if (!output) {
-        console.error("Resume generation failed: AI returned null or empty output.");
-        return "<h2>Error: Resume Generation Failed</h2><p>The AI was unable to generate the resume content at this time. This could be due to a temporary service issue. Please try again later.</p>";
+        return output;
+    } catch (error) {
+        console.error("Error in generateResumeFlow:", error);
+        if (error instanceof Error && error.message.includes('503')) {
+            return "<h2>Error: Service Unavailable</h2><p>The AI service is currently busy or overloaded. Please try again in a moment.</p>";
+        }
+        return "<h2>Error: Resume Generation Failed</h2><p>An unexpected error occurred while generating the resume. Please check the server logs for more details.</p>";
     }
-    
-    // Defensive cleanup to remove Markdown code fences if the model adds them
-    output = output.trim().replace(/^```html\s*/, '').replace(/\s*```$/, '').trim();
-
-    return output;
   }
 );
