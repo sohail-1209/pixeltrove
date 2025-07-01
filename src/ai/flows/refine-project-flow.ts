@@ -64,15 +64,28 @@ const refineProjectFlow = ai.defineFlow(
     outputSchema: RefineProjectOutputSchema, // Use the union schema
   },
   async (input) => {
-    try {
-      const {output} = await prompt(input);
-      return output!;
-    } catch (error) {
-      console.error("Error in refineProjectFlow:", error);
-      if (error instanceof Error && error.message.includes('503')) {
-        return { error: "The AI service is currently busy. Please try again in a moment." };
+    const MAX_RETRIES = 3;
+    let attempt = 0;
+    while (attempt < MAX_RETRIES) {
+      try {
+        const {output} = await prompt(input);
+        return output!; // Success
+      } catch (error) {
+        console.error(`Error in refineProjectFlow (Attempt ${attempt + 1}/${MAX_RETRIES}):`, error);
+        if (error instanceof Error && error.message.includes('503') && attempt < MAX_RETRIES - 1) {
+          attempt++;
+          // Exponential backoff: wait 1s, then 2s
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        } else {
+          // Last attempt or non-retriable error
+          if (error instanceof Error && error.message.includes('503')) {
+            return { error: "The AI service is currently busy. Please try again in a moment." };
+          }
+          return { error: "An unexpected error occurred while improvising content." };
+        }
       }
-      return { error: "An unexpected error occurred while improvising content." };
     }
+    // Fallback, should be unreachable
+    return { error: "An unexpected error occurred after multiple retries." };
   }
 );

@@ -71,14 +71,40 @@ const explainProjectFlow = ai.defineFlow(
   async ({projectUrl, title, description, tags}) => {
     const websiteContent = await scrapeWebsite(projectUrl);
     
-    // If the scraper returns an error OR returns no content, use fallback.
-    if (websiteContent.startsWith('Error:') || !websiteContent.trim()) {
+    const promptData = (websiteContent.startsWith('Error:') || !websiteContent.trim())
+      ? {title, description, tags}
+      : {title, websiteContent};
+
+    if (promptData.description) {
       console.log(`Scraping failed for ${projectUrl}. Falling back to metadata.`);
-      const {output} = await prompt({title, description, tags});
-      return output!;
     }
 
-    const {output} = await prompt({title, websiteContent});
-    return output!;
+    const MAX_RETRIES = 3;
+    let attempt = 0;
+    while (attempt < MAX_RETRIES) {
+      try {
+        const {output} = await prompt(promptData);
+        if (!output) {
+          throw new Error("AI explanation returned empty output.");
+        }
+        return output; // Success
+      } catch (error) {
+        console.error(`Error in explainProjectFlow (Attempt ${attempt + 1}/${MAX_RETRIES}):`, error);
+        const isRetriable = error instanceof Error && (error.message.includes('503') || error.message.includes("empty output"));
+        
+        if (isRetriable && attempt < MAX_RETRIES - 1) {
+          attempt++;
+          // Exponential backoff: wait 1s, then 2s
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        } else {
+          // On last attempt or non-retriable error, re-throw.
+          // The client-side (project-card) will catch this and show a toast.
+          throw error;
+        }
+      }
+    }
+    
+    // This should be unreachable, but provides a fallback.
+    throw new Error("Failed to get explanation after multiple retries.");
   }
 );

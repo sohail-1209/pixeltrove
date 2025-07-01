@@ -220,25 +220,41 @@ const generateResumeFlow = ai.defineFlow(
         projects: projects.map(({title, description, tags, link}) => ({title, description, tags, link})),
     };
 
-    try {
-        const response = await prompt(resumeData);
-        let output = response.text;
+    const MAX_RETRIES = 3;
+    let attempt = 0;
+    while (attempt < MAX_RETRIES) {
+        try {
+            const response = await prompt(resumeData);
+            let output = response.text;
 
-        if (!output) {
-            console.error("Resume generation failed: AI returned null or empty output.");
-            return "<h2>Error: Resume Generation Failed</h2><p>The AI was unable to generate the resume content at this time. This could be due to a temporary service issue. Please try again later.</p>";
-        }
-        
-        // Defensive cleanup to remove Markdown code fences if the model adds them
-        output = output.trim().replace(/^```html\s*/, '').replace(/\s*```$/, '').trim();
+            if (!output) {
+                // This is a model failure, not a service error.
+                // Let's retry as it might be a transient issue.
+                throw new Error("Resume generation returned empty output.");
+            }
+            
+            // Defensive cleanup to remove Markdown code fences if the model adds them
+            output = output.trim().replace(/^```html\s*/, '').replace(/\s*```$/, '').trim();
+            return output; // Success, exit loop
 
-        return output;
-    } catch (error) {
-        console.error("Error in generateResumeFlow:", error);
-        if (error instanceof Error && error.message.includes('503')) {
-            return "<h2>Error: Service Unavailable</h2><p>The AI service is currently busy or overloaded. Please try again in a moment.</p>";
+        } catch (error) {
+            console.error(`Error in generateResumeFlow (Attempt ${attempt + 1}/${MAX_RETRIES}):`, error);
+            const isRetriable = error instanceof Error && (error.message.includes('503') || error.message.includes("empty output"));
+            
+            if (isRetriable && attempt < MAX_RETRIES - 1) {
+                attempt++;
+                await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // wait 1s, 2s
+            } else {
+                // This was the last attempt or a non-retriable error
+                if (error instanceof Error && error.message.includes('503')) {
+                     return "<h2>Error: Service Unavailable</h2><p>The AI service is currently busy or overloaded. Please try again in a moment.</p>";
+                }
+                return "<h2>Error: Resume Generation Failed</h2><p>An unexpected error occurred while generating the resume. Please check the server logs for more details.</p>";
+            }
         }
-        return "<h2>Error: Resume Generation Failed</h2><p>An unexpected error occurred while generating the resume. Please check the server logs for more details.</p>";
     }
+    
+    // This part should be unreachable if the loop logic is correct, but as a fallback:
+    return "<h2>Error: Resume Generation Failed</h2><p>An unexpected error occurred after multiple retries. Please try again later.</p>";
   }
 );

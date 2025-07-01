@@ -59,32 +59,52 @@ const narrateProjectFlow = ai.defineFlow(
     outputSchema: NarrateProjectOutputSchema,
   },
   async (textToNarrate) => {
-    const { media } = await ai.generate({
-        model: googleAI.model('gemini-2.5-flash-preview-tts'),
-        config: {
-            responseModalities: ['AUDIO'],
-            speechConfig: {
-                voiceConfig: {
-                    prebuiltVoiceConfig: { voiceName: 'Algenib' },
+    const MAX_RETRIES = 3;
+    let attempt = 0;
+    while (attempt < MAX_RETRIES) {
+      try {
+        const { media } = await ai.generate({
+            model: googleAI.model('gemini-2.5-flash-preview-tts'),
+            config: {
+                responseModalities: ['AUDIO'],
+                speechConfig: {
+                    voiceConfig: {
+                        prebuiltVoiceConfig: { voiceName: 'Algenib' },
+                    },
                 },
             },
-        },
-        prompt: textToNarrate,
-    });
+            prompt: textToNarrate,
+        });
 
-    if (!media) {
-        throw new Error('No audio media was returned from the TTS model.');
+        if (!media) {
+            throw new Error('No audio media was returned from the TTS model.');
+        }
+        
+        const audioBuffer = Buffer.from(
+            media.url.substring(media.url.indexOf(',') + 1),
+            'base64'
+        );
+
+        const wavBase64 = await toWav(audioBuffer);
+        
+        return {
+            audioDataUri: `data:audio/wav;base64,${wavBase64}`,
+        };
+      } catch (error) {
+          console.error(`Error in narrateProjectFlow (Attempt ${attempt + 1}/${MAX_RETRIES}):`, error);
+          const isRetriable = error instanceof Error && (error.message.includes('503') || error.message.includes("No audio media"));
+
+          if (isRetriable && attempt < MAX_RETRIES - 1) {
+              attempt++;
+              await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          } else {
+              // Re-throw the error on the last attempt or for non-retriable errors.
+              // The client-side will catch this and show a toast.
+              throw error;
+          }
+      }
     }
-    
-    const audioBuffer = Buffer.from(
-        media.url.substring(media.url.indexOf(',') + 1),
-        'base64'
-    );
-
-    const wavBase64 = await toWav(audioBuffer);
-    
-    return {
-        audioDataUri: `data:audio/wav;base64,${wavBase64}`,
-    };
+    // Fallback if loop finishes.
+    throw new Error('Failed to generate narration after multiple retries.');
   }
 );
