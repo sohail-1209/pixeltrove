@@ -22,7 +22,7 @@ export default function Home() {
   });
 
   return (
-    <div ref={containerRef} style={{ height: `${sections.length * 100}vh` }} className="bg-background">
+    <div ref={containerRef} style={{ height: `${sections.length * 120}vh` }} className="bg-background">
       <div className="sticky top-0 h-screen" style={{ perspective: '1200px' }}>
         {sections.map((section, i) => {
           const numSections = sections.length;
