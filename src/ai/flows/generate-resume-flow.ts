@@ -194,7 +194,7 @@ const generateResumeFlow = ai.defineFlow(
     const resumeData = {
         name: "Mohammad Sohail Pashe",
         title: "Front-end Developer",
-        email: "SohelPashe@gmail.com",
+        email: "sohailpashe@gmail.com",
         phone: "9553081586",
         location: "Hyderabad, Telangana",
         github: githubUrl,
