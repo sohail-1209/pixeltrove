@@ -60,11 +60,17 @@ const explainProjectFlow = ai.defineFlow(
   async ({projectUrl, title}) => {
     const websiteContent = await scrapeWebsite(projectUrl);
     
-    if (websiteContent.startsWith('Error:')) {
+    // If the scraper returns an error OR returns no content, handle it gracefully.
+    if (websiteContent.startsWith('Error:') || !websiteContent.trim()) {
+      const isError = websiteContent.startsWith('Error:');
+      const reason = isError 
+        ? websiteContent 
+        : "The scraper found no readable text on the page. This can happen with single-page applications that render their content with client-side JavaScript.";
+
       return {
-        summary: `Could not analyze the project.`,
-        features: [`Scraping the website at ${projectUrl} failed.`, `Reason: ${websiteContent}`],
-        techStack: "Tech stack could not be determined due to a scraping error."
+        summary: `Could not analyze the project "${title}".`,
+        features: [`The scraper was unable to retrieve content from ${projectUrl}.`, `Reason: ${reason}`],
+        techStack: "Tech stack could not be determined."
       }
     }
 
