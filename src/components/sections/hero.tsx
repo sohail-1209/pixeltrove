@@ -45,7 +45,7 @@ export function Hero() {
             className="flex justify-center"
           >
              <Button asChild size="lg" className="font-bold">
-              <Link href="/projects">
+              <Link href="/#projects">
                 View My Work
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
