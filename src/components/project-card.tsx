@@ -27,8 +27,8 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
   const mouseX = useSpring(x, { stiffness: 100, damping: 15, restDelta: 0.001 });
   const mouseY = useSpring(y, { stiffness: 100, damping: 15, restDelta: 0.001 });
 
-  const rotateX = useTransform(mouseY, [-150, 150], ["10deg", "-10deg"]);
-  const rotateY = useTransform(mouseX, [-150, 150], ["-10deg", "10deg"]);
+  const rotateX = useTransform(mouseY, [-150, 150], ["30deg", "-30deg"]);
+  const rotateY = useTransform(mouseX, [-150, 150], ["-30deg", "30deg"]);
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
