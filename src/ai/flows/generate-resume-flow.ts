@@ -87,6 +87,12 @@ const generateResumeFlow = ai.defineFlow(
         skills,
         projects: projects.map(({title, description, tags, link}) => ({title, description, tags, link})),
     });
-    return output!;
+
+    if (!output) {
+        console.error("Resume generation failed: AI returned null output.");
+        return "## Error: Resume Generation Failed\n\nThe AI was unable to generate the resume content at this time. This could be due to a temporary service issue. Please try again later.";
+    }
+
+    return output;
   }
 );
