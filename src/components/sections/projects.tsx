@@ -12,7 +12,6 @@ export function Projects() {
 
   return (
     <motion.section
-      id="projects"
       initial="hidden"
       whileInView="show"
       viewport={{ once: true }}

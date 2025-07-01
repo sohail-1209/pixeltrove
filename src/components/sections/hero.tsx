@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { ArrowDown } from 'lucide-react';
+import { ArrowDown, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
@@ -13,7 +13,6 @@ export function Hero() {
 
   return (
     <motion.section
-      id="hero"
       initial="hidden"
       animate="show"
       viewport={{ once: true }}
@@ -46,9 +45,9 @@ export function Hero() {
             className="flex justify-center"
           >
              <Button asChild size="lg" className="font-bold">
-              <Link href="#projects">
+              <Link href="/projects">
                 View My Work
-                <ArrowDown className="ml-2 h-4 w-4" />
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </motion.div>

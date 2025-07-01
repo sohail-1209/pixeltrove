@@ -12,7 +12,6 @@ export function Contact() {
 
   return (
     <motion.section
-      id="contact"
       initial="hidden"
       whileInView="show"
       viewport={{ once: true }}
