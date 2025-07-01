@@ -1,6 +1,7 @@
+
 'use server';
 /**
- * @fileOverview An AI flow to generate a professional resume in Markdown format.
+ * @fileOverview An AI flow to generate a professional resume in HTML format.
  *
  * - generateResume - A function that generates resume content.
  * - GenerateResumeOutput - The return type for the generateResume function (string).
@@ -55,9 +56,9 @@ const prompt = ai.definePrompt({
   input: { schema: GenerateResumeInputSchema },
   // By removing the output schema, we can handle cases where the model returns null
   // or non-string data without causing a validation error.
-  prompt: `You are a professional resume writer. Generate a polished, one-page resume in HTML format for a developer named {{name}}, using only the information provided below.
-The entire output must be a single HTML \`<div>\` element with the class "resume-container". Do not include \`<html>\`, \`<head>\`, or \`<body>\` tags.
-Use the provided HTML structure and class names. Fill in the content appropriately.
+  prompt: `You are an expert resume writer. Your task is to generate a polished, one-page resume in HTML format for a developer named {{name}}, using only the information provided.
+Your entire response MUST be the raw HTML content of a single \`<div>\` element with the class "resume-container".
+Do NOT include the \`<html>\`, \`<head>\`, or \`<body>\` tags. Do NOT wrap the output in Markdown code fences (like \`\`\`html). Your output should begin directly with \`<div class="resume-container">\`.
 
 ---
 **Resume Information:**
@@ -198,8 +199,8 @@ const generateResumeFlow = ai.defineFlow(
         phone: "9553081586",
         location: "Hyderabad, Telangana",
         github: githubUrl,
-        linkedin: "https://www.linkedin.com/in/sohail-pashe/", // Placeholder updated
-        website: "https://github.com/sohail-1209", // Placeholder
+        linkedin: "https://www.linkedin.com/in/sohail-pashe/",
+        website: "https://github.com/sohail-1209",
         summary: "Frontend Developer passionate about crafting responsive, user-friendly interfaces using React, HTML, CSS, and Firebase. Eager to contribute to innovative web applications and constantly improve through learning.",
         education: {
             degree: "B.Tech in CST (AI & ML)",
@@ -221,12 +222,15 @@ const generateResumeFlow = ai.defineFlow(
 
     const response = await prompt(resumeData);
 
-    const output = response.text;
+    let output = response.text;
 
     if (!output) {
         console.error("Resume generation failed: AI returned null or empty output.");
         return "<h2>Error: Resume Generation Failed</h2><p>The AI was unable to generate the resume content at this time. This could be due to a temporary service issue. Please try again later.</p>";
     }
+    
+    // Defensive cleanup to remove Markdown code fences if the model adds them
+    output = output.trim().replace(/^```html\s*/, '').replace(/\s*```$/, '').trim();
 
     return output;
   }
