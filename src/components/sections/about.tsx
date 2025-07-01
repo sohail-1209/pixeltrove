@@ -23,10 +23,10 @@ export function About() {
           },
         },
       }}
-      className="w-full py-12 md:py-24 lg:py-32 bg-secondary"
+      className="w-full h-screen flex items-center bg-secondary"
     >
       <div className="container px-4 md:px-6">
-        <div className="grid gap-10 lg:grid-cols-2">
+        <div className="grid gap-10 lg:grid-cols-2 items-center">
           <motion.div variants={FADE_UP_ANIMATION_VARIANTS} className="space-y-4">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">About Me</h2>
             <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
