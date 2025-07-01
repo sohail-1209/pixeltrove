@@ -244,8 +244,8 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
                     <Image
                       src={image}
                       alt={title}
-                      width={50}
-                      height={50}
+                      width={400}
+                      height={400}
                       data-ai-hint={aiHint}
                       className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                     />
