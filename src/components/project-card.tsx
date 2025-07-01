@@ -1,14 +1,14 @@
 
 "use client";
 
-import { useState, type FC } from 'react';
+import { useState, type FC, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUpRight, Pencil, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from './ui/button';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { WireframeBack } from './wireframe-back';
 
 interface ProjectCardProps {
@@ -25,6 +25,37 @@ interface ProjectCardProps {
 export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, tags, link, aiHint, isAdmin, onEdit }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
+  const ref = useRef<HTMLDivElement>(null);
+  
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 30 });
+  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 30 });
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+
+    const { left, top, width, height } = ref.current.getBoundingClientRect();
+
+    const mouseX = e.clientX - left;
+    const mouseY = e.clientY - top;
+
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
   const handleFlip = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent link navigation if clicking the button
     e.stopPropagation();
@@ -34,67 +65,79 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
   return (
     <div className="w-full [perspective:1000px]">
       <motion.div
-        className="relative w-full [transform-style:preserve-3d]"
-        animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ duration: 0.6 }}
-        style={{ minHeight: '450px' }}
+        ref={ref}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{
+          rotateX,
+          rotateY,
+          transformStyle: 'preserve-3d',
+        }}
+        className="w-full h-full"
       >
-        {/* Front Face */}
-        <div className="[backface-visibility:hidden]">
-          <Card className="h-full flex flex-col group">
-            <CardHeader className="p-0">
-              <div className="aspect-video overflow-hidden rounded-t-lg">
-                <Image
-                  src={image}
-                  alt={title}
-                  width={600}
-                  height={400}
-                  data-ai-hint={aiHint}
-                  className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 flex-grow">
-              <CardTitle className="mb-2 text-xl font-bold font-headline">{title}</CardTitle>
-              <p className="text-muted-foreground">{description}</p>
-            </CardContent>
-            <CardFooter className="p-6 pt-0 flex flex-col items-start gap-4">
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">{tag}</Badge>
-                ))}
-              </div>
-              <div className="flex justify-between items-center w-full mt-auto">
-                <Link href={link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm font-medium text-accent hover:underline">
-                  View Project
-                  <ArrowUpRight className="ml-1 h-4 w-4" />
-                </Link>
-                <div className="flex items-center">
-                  {isAdmin && (
-                    <Button variant="ghost" size="icon" onClick={onEdit} aria-label="Edit Project">
-                      <Pencil className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
-                    </Button>
-                  )}
-                  <Button variant="ghost" size="icon" onClick={handleFlip} aria-label="Flip Card">
-                    <RefreshCw className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
-                  </Button>
+        <motion.div
+          className="relative w-full [transform-style:preserve-3d]"
+          animate={{ rotateY: isFlipped ? 180 : 0 }}
+          transition={{ duration: 0.6 }}
+          style={{ minHeight: '450px' }}
+        >
+          {/* Front Face */}
+          <div className="[backface-visibility:hidden]">
+            <Card className="h-full flex flex-col group">
+              <CardHeader className="p-0">
+                <div className="aspect-video overflow-hidden rounded-t-lg">
+                  <Image
+                    src={image}
+                    alt={title}
+                    width={600}
+                    height={400}
+                    data-ai-hint={aiHint}
+                    className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                  />
                 </div>
-              </div>
-            </CardFooter>
-          </Card>
-        </div>
+              </CardHeader>
+              <CardContent className="p-6 flex-grow">
+                <CardTitle className="mb-2 text-xl font-bold font-headline">{title}</CardTitle>
+                <p className="text-muted-foreground">{description}</p>
+              </CardContent>
+              <CardFooter className="p-6 pt-0 flex flex-col items-start gap-4">
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag) => (
+                    <Badge key={tag} variant="secondary">{tag}</Badge>
+                  ))}
+                </div>
+                <div className="flex justify-between items-center w-full mt-auto">
+                  <Link href={link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm font-medium text-accent hover:underline">
+                    View Project
+                    <ArrowUpRight className="ml-1 h-4 w-4" />
+                  </Link>
+                  <div className="flex items-center">
+                    {isAdmin && (
+                      <Button variant="ghost" size="icon" onClick={onEdit} aria-label="Edit Project">
+                        <Pencil className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
+                      </Button>
+                    )}
+                    <Button variant="ghost" size="icon" onClick={handleFlip} aria-label="Flip Card">
+                      <RefreshCw className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
+                    </Button>
+                  </div>
+                </div>
+              </CardFooter>
+            </Card>
+          </div>
 
-        {/* Back Face */}
-        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]">
-          <div className="relative w-full h-full">
-            <WireframeBack />
-            <div className="absolute top-2 right-2 z-10">
-              <Button variant="ghost" size="icon" onClick={handleFlip} aria-label="Flip Card Back">
-                <RefreshCw className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
-              </Button>
+          {/* Back Face */}
+          <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+            <div className="relative w-full h-full">
+              <WireframeBack />
+              <div className="absolute top-2 right-2 z-10">
+                <Button variant="ghost" size="icon" onClick={handleFlip} aria-label="Flip Card Back">
+                  <RefreshCw className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </motion.div>
     </div>
   );
