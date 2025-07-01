@@ -24,7 +24,7 @@ export function Hero() {
           },
         },
       }}
-      className="relative w-full h-screen min-h-[600px] flex items-center justify-center"
+      className="relative w-full h-screen min-h-[600px] flex items-center justify-center bg-background"
     >
       <div className="container px-4 md:px-6 text-center">
         <div className="space-y-4">
