@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import { ProjectCard } from "@/components/project-card";
 import { type Project } from "@/lib/data";
 import { Shield, Plus, ArrowDown } from "lucide-react";
@@ -12,7 +12,8 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, updateDoc, doc } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import type { MotionValue } from "framer-motion";
+import { motion, useTransform, type MotionValue, useMotionValue } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<number> }) {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -25,20 +26,29 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const { toast } = useToast();
 
-  const gridRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!scrollProgress) return;
+  const [contentHeight, setContentHeight] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
 
-    const unsubscribe = scrollProgress.on("change", (latest) => {
-      if (gridRef.current) {
-        const scrollableHeight = gridRef.current.scrollHeight - gridRef.current.clientHeight;
-        gridRef.current.scrollTop = latest * scrollableHeight;
+  const hasAnimatedScroll = !!scrollProgress;
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      if (containerRef.current && contentRef.current) {
+        setContainerHeight(containerRef.current.clientHeight);
+        setContentHeight(contentRef.current.scrollHeight);
       }
-    });
+    };
+    
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [projects, loading]);
 
-    return () => unsubscribe();
-  }, [scrollProgress]);
+  const scrollableDistance = Math.max(0, contentHeight - containerHeight);
+  const internalY = hasAnimatedScroll && scrollProgress ? useTransform(scrollProgress, [0, 1], [0, -scrollableDistance]) : useMotionValue(0);
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -168,64 +178,52 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
           </div>
           
           {/* Scrollable grid */}
-          <div ref={gridRef} className="flex-grow overflow-y-scroll scrollbar-hide">
-            <div className="container px-4 md:px-6 pb-12">
-                <div 
-                  className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2"
-                >
-                  {loading ? (
-                    Array.from({ length: 4 }).map((_, i) => (
-                      <div key={i}>
-                          <div className="flex flex-col h-full rounded-lg border bg-card shadow-sm p-6 space-y-4">
-                            <Skeleton className="aspect-video w-full" />
-                            <Skeleton className="h-6 w-3/4" />
-                            <Skeleton className="h-4 w-full" />
-                            <Skeleton className="h-4 w-5/6" />
-                            <div className="flex flex-wrap gap-2 pt-4">
-                                <Skeleton className="h-6 w-1/4" />
-                                <Skeleton className="h-6 w-1/4" />
+          <div ref={containerRef} className={cn("flex-grow scrollbar-hide", hasAnimatedScroll ? "overflow-hidden" : "overflow-y-auto")}>
+            <motion.div style={hasAnimatedScroll ? { y: internalY } : {}}>
+              <div ref={contentRef} className="container px-4 md:px-6 pb-12">
+                  <div 
+                    className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2"
+                  >
+                    {loading ? (
+                      Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i}>
+                            <div className="flex flex-col h-full rounded-lg border bg-card shadow-sm p-6 space-y-4">
+                              <Skeleton className="aspect-video w-full" />
+                              <Skeleton className="h-6 w-3/4" />
+                              <Skeleton className="h-4 w-full" />
+                              <Skeleton className="h-4 w-5/6" />
+                              <div className="flex flex-wrap gap-2 pt-4">
+                                  <Skeleton className="h-6 w-1/4" />
+                                  <Skeleton className="h-6 w-1/4" />
+                              </div>
                             </div>
-                          </div>
-                      </div>
-                    ))
-                  ) : projects.length > 0 ? (
-                      projects.map((project) => (
-                          <ProjectCard
-                            key={project.id}
-                            {...project}
-                            isAdmin={isAdmin}
-                            onEdit={() => handleEditProject(project)}
-                          />
+                        </div>
                       ))
-                  ) : (
-                    <div
-                      className="col-span-full text-center text-muted-foreground py-12"
-                    >
-                      <p>No projects found.</p>
-                      <p className="text-sm mt-2">
-                        {isAdmin ? "Click 'Add Project' to get started." : "Log in as an admin to add projects."}
-                      </p>
-                    </div>
-                  )}
-                </div>
-            </div>
+                    ) : projects.length > 0 ? (
+                        projects.map((project) => (
+                            <ProjectCard
+                              key={project.id}
+                              {...project}
+                              isAdmin={isAdmin}
+                              onEdit={() => handleEditProject(project)}
+                            />
+                        ))
+                    ) : (
+                      <div
+                        className="col-span-full text-center text-muted-foreground py-12"
+                      >
+                        <p>No projects found.</p>
+                        <p className="text-sm mt-2">
+                          {isAdmin ? "Click 'Add Project' to get started." : "Log in as an admin to add projects."}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>
     </section>
   );
 }
-
-// Custom utility to hide scrollbars
-const scrollbarHide = {
-  '.scrollbar-hide': {
-    /* IE and Edge */
-    '-ms-overflow-style': 'none',
-    /* Firefox */
-    'scrollbar-width': 'none',
-    /* Safari and Chrome */
-    '&::-webkit-scrollbar': {
-      display: 'none',
-    },
-  },
-};
