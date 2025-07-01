@@ -54,6 +54,7 @@ export default function Home() {
           const opacity = useTransform(scrollYProgress, inputRange, [isFirst ? 1 : 0, 1, 1, isLast ? 1 : 0]);
           const scale = useTransform(scrollYProgress, inputRange, [isFirst ? 1 : 0.8, 1, 1, isLast ? 1 : 0.8]);
           const z = useTransform(scrollYProgress, inputRange, [isFirst ? 0 : -800, 0, 0, isLast ? 0 : -800]);
+          const zIndex = useTransform(scrollYProgress, inputRange, [isFirst ? 20 : 0, 20, 20, isLast ? 20 : 0]);
           
           return (
             <motion.div
@@ -64,6 +65,7 @@ export default function Home() {
                 opacity,
                 scale,
                 z,
+                zIndex,
               }}
             >
               {section.component}
