@@ -23,7 +23,7 @@ export function Projects() {
           },
         },
       }}
-      className="w-full h-screen flex items-center"
+      className="w-full h-screen overflow-y-auto py-24"
     >
       <div className="container px-4 md:px-6">
         <motion.div
