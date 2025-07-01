@@ -23,7 +23,7 @@ export function SparklingText({
         />
       </div>
       {/* The text itself */}
-      <h1 className="text-4xl font-black tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl/none font-headline
+      <h1 className="text-4xl font-thin tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl/none font-saira
         bg-clip-text text-transparent 
         bg-gradient-to-r from-pink_accent via-violet_accent to-accent
         animate-shine-light bg-[length:200%_auto] z-10
