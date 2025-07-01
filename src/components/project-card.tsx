@@ -79,7 +79,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
     setExplanation(null);
 
     try {
-      const result = await explainProject({ projectUrl: link, title });
+      const result = await explainProject({ projectUrl: link, title, description, tags });
       setExplanation(result);
     } catch (error) {
       console.error("Failed to get explanation:", error);

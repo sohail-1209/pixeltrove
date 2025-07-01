@@ -14,6 +14,8 @@ import {z} from 'genkit';
 const ExplainProjectInputSchema = z.object({
   projectUrl: z.string().url().describe('The URL of the project website.'),
   title: z.string().describe('The title of the project.'),
+  description: z.string().describe('A short description of the project.'),
+  tags: z.array(z.string()).describe('A list of technologies used in the project.'),
 });
 export type ExplainProjectInput = z.infer<typeof ExplainProjectInputSchema>;
 
@@ -32,22 +34,31 @@ const prompt = ai.definePrompt({
   name: 'explainProjectPrompt',
   input: {schema: z.object({
     title: z.string(),
-    websiteContent: z.string(),
+    websiteContent: z.string().optional(),
+    description: z.string().optional(),
+    tags: z.array(z.string()).optional(),
   })},
   output: {schema: ExplainProjectOutputSchema},
   prompt: `You are a tech expert and portfolio reviewer.
-Based on the following project title and the text content from its website, generate a concise and insightful explanation structured into the output format.
+Your goal is to generate a concise and insightful explanation of a software project, structured into the output format.
 
+{{#if websiteContent}}
 You are explaining "{{{title}}}".
-Here is the raw text content scraped from its website:
+Base your explanation primarily on the following text content scraped from its website.
 ---
 {{{websiteContent}}}
 ---
+{{else}}
+You are explaining "{{{title}}}".
+The project's website could not be automatically read, so you will base your explanation on the following metadata provided by the user.
+Description: {{{description}}}
+Technologies: {{#each tags}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
+{{/if}}
 
-Based on this, please provide:
+Based on the information available, please provide:
 1. A one-sentence summary of the project's main purpose.
 2. A list of 3-4 key features or actions a user can perform.
-3. A concluding sentence that highlights the key technologies used. If you cannot determine the technologies, make a best guess or state that it's unclear from the provided text.
+3. A concluding sentence that highlights the key technologies used. If you cannot determine the technologies from the text, use the provided tags or make a best guess.
 `,
 });
 
@@ -57,21 +68,14 @@ const explainProjectFlow = ai.defineFlow(
     inputSchema: ExplainProjectInputSchema,
     outputSchema: ExplainProjectOutputSchema,
   },
-  async ({projectUrl, title}) => {
+  async ({projectUrl, title, description, tags}) => {
     const websiteContent = await scrapeWebsite(projectUrl);
     
-    // If the scraper returns an error OR returns no content, handle it gracefully.
+    // If the scraper returns an error OR returns no content, use fallback.
     if (websiteContent.startsWith('Error:') || !websiteContent.trim()) {
-      const isError = websiteContent.startsWith('Error:');
-      const reason = isError 
-        ? websiteContent 
-        : "The scraper found no readable text on the page. This can happen with single-page applications that render their content with client-side JavaScript.";
-
-      return {
-        summary: `Could not analyze the project "${title}".`,
-        features: [`The scraper was unable to retrieve content from ${projectUrl}.`, `Reason: ${reason}`],
-        techStack: "Tech stack could not be determined."
-      }
+      console.log(`Scraping failed for ${projectUrl}. Falling back to metadata.`);
+      const {output} = await prompt({title, description, tags});
+      return output!;
     }
 
     const {output} = await prompt({title, websiteContent});
