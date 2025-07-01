@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { ProjectCard } from "@/components/project-card";
 import { type Project } from "@/lib/data";
 import { motion } from "framer-motion";
-import { ArrowDown, Shield, Plus } from "lucide-react";
+import { Shield, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AdminLoginDialog } from "@/components/admin-login-dialog";
 import { ProjectEditDialog } from "@/components/project-edit-dialog";
@@ -40,7 +40,6 @@ export function Projects() {
           if (!doc.exists()) return null;
           
           const data = doc.data();
-          // Validate that the document data conforms to the Project type
           if (
             typeof data.title !== 'string' ||
             typeof data.description !== 'string' ||
@@ -117,7 +116,7 @@ export function Projects() {
           },
         },
       }}
-      className="relative w-full h-screen overflow-y-auto"
+      className="relative w-full min-h-screen bg-background"
     >
       <AdminLoginDialog open={isLoginOpen} onOpenChange={setIsLoginOpen} onLoginSuccess={handleLoginSuccess} />
       <ProjectEditDialog 
@@ -126,30 +125,18 @@ export function Projects() {
         onSubmit={handleSubmitProject}
         project={editingProject}
       />
-      <div className="absolute top-1/2 right-4 md:right-8 -translate-y-1/2 flex flex-col items-center gap-4 text-muted-foreground z-10">
+      
+      <div className="absolute top-8 right-4 md:right-8 flex flex-col items-center gap-4 text-muted-foreground z-10">
         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => setIsLoginOpen(true)}>
           <Shield className="h-6 w-6" />
           <span className="sr-only">Admin Login</span>
         </Button>
-        <span className="text-xs font-semibold tracking-widest uppercase [writing-mode:vertical-rl] transform rotate-180">
-          Scroll
-        </span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            repeatType: "loop",
-          }}
-        >
-          <ArrowDown className="w-4 h-4" />
-        </motion.div>
       </div>
 
       <div className="container px-4 md:px-6 py-24">
           <motion.div
             variants={FADE_UP_ANIMATION_VARIANTS}
-            className="flex flex-col items-center justify-center space-y-4 text-center relative z-20"
+            className="flex flex-col items-center justify-center space-y-4 text-center z-20 relative"
           >
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Featured Projects</h2>
@@ -168,7 +155,7 @@ export function Projects() {
           >
             {loading ? (
               Array.from({ length: 2 }).map((_, i) => (
-                <motion.div key={i} variants={FADE_UP_ANIMATION_VARIANTS}>
+                <div key={i}>
                     <div className="flex flex-col h-full rounded-lg border bg-card shadow-sm p-6 space-y-4">
                       <Skeleton className="aspect-video w-full" />
                       <Skeleton className="h-6 w-3/4" />
@@ -179,32 +166,26 @@ export function Projects() {
                           <Skeleton className="h-6 w-1/4" />
                       </div>
                     </div>
-                </motion.div>
+                </div>
               ))
             ) : projects.length > 0 ? (
-                projects.map((project, i) => (
-                  <motion.div
-                    key={project.id || i}
-                    variants={FADE_UP_ANIMATION_VARIANTS}
-                    custom={i}
-                  >
+                projects.map((project) => (
                     <ProjectCard
+                      key={project.id}
                       {...project}
                       isAdmin={isAdmin}
                       onEdit={() => handleEditProject(project)}
                     />
-                  </motion.div>
                 ))
             ) : (
-               <motion.div 
-                variants={FADE_UP_ANIMATION_VARIANTS} 
+               <div
                 className="col-span-full text-center text-muted-foreground py-12"
               >
                 <p>No projects found.</p>
                 <p className="text-sm mt-2">
                   {isAdmin ? "Click 'Add Project' to get started." : "Log in as an admin to add projects."}
                 </p>
-              </motion.div>
+              </div>
             )}
           </div>
       </div>
