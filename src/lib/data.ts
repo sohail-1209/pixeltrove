@@ -1,6 +1,16 @@
+
 import { Github, Linkedin, Mail } from 'lucide-react';
 
-export const projects = [
+export type Project = {
+  title: string;
+  description: string;
+  image: string;
+  tags: string[];
+  link: string;
+  aiHint: string;
+};
+
+export const projects: Project[] = [
   {
     title: 'Project Alpha',
     description: 'A cutting-edge web application designed to streamline project management and collaboration. Built with a focus on performance and user experience.',

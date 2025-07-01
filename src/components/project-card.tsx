@@ -1,9 +1,10 @@
+
 "use client";
 
 import type { FC, MouseEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowUpRight, Rotate3d } from 'lucide-react';
+import { ArrowUpRight, Rotate3d, Pencil } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CardTitle } from '@/components/ui/card';
@@ -19,9 +20,11 @@ interface ProjectCardProps {
   tags: string[];
   link: string;
   aiHint: string;
+  isAdmin?: boolean;
+  onEdit?: () => void;
 }
 
-export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, tags, link, aiHint }) => {
+export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, tags, link, aiHint, isAdmin, onEdit }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   const handleFlip = (e: MouseEvent) => {
@@ -73,9 +76,16 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
                   View Project
                   <ArrowUpRight className="ml-1 h-4 w-4" />
                 </Link>
-                <Button variant="ghost" size="icon" onClick={handleFlip} aria-label="Rotate Card">
-                  <Rotate3d className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  {isAdmin && (
+                     <Button variant="ghost" size="icon" onClick={onEdit} aria-label="Edit Project">
+                      <Pencil className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
+                    </Button>
+                  )}
+                  <Button variant="ghost" size="icon" onClick={handleFlip} aria-label="Rotate Card">
+                    <Rotate3d className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
+                  </Button>
+                </div>
               </div>
             </CardFooter>
           </Card>
