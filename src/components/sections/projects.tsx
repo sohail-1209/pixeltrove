@@ -167,7 +167,7 @@ export function Projects() {
       <div
         ref={sectionRef}
         onWheel={onWheel}
-        className="w-full h-screen overflow-y-auto py-24"
+        className="w-full h-full overflow-y-auto py-24"
       >
         <div className="container px-4 md:px-6">
           <motion.div
