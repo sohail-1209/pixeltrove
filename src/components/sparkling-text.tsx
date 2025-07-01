@@ -17,8 +17,8 @@ export function SparklingText({
       <div className={cn("w-full absolute inset-0", sparklesClassName)}>
         <SparklesCore
           particleCount={100}
-          minSize={0.4}
-          maxSize={1}
+          minSize={0.8}
+          maxSize={2.2}
           className="w-full h-full"
         />
       </div>
@@ -27,6 +27,7 @@ export function SparklingText({
         bg-clip-text text-transparent 
         bg-gradient-to-r from-pink_accent via-violet_accent to-accent
         animate-shine-light bg-[length:200%_auto] z-10
+        [filter:drop-shadow(0_0_10px_hsl(var(--violet-accent)/0.7))]
       ">
         {children}
       </h1>
