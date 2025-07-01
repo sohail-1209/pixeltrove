@@ -240,12 +240,12 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
             <div className="[backface-visibility:hidden]">
               <Card className="h-full flex flex-col group">
                 <CardContent className="p-6 flex-grow">
-                  <div className="aspect-square overflow-hidden clip-decagon mb-4">
+                  <div className="aspect-[4/3] overflow-hidden clip-decagon mb-4">
                     <Image
                       src={image}
                       alt={title}
-                      width={600}
-                      height={600}
+                      width={400}
+                      height={300}
                       data-ai-hint={aiHint}
                       className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                     />
