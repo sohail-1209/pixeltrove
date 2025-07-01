@@ -12,7 +12,7 @@ export default {
     extend: {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        headline: ['"Edu QLD Hand"', 'cursive'],
         handwriting: ['"Edu QLD Hand"', 'cursive'],
         code: ['monospace'],
         saira: ['Saira', 'sans-serif'],
