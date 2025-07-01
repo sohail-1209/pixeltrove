@@ -1,10 +1,10 @@
 
 "use client";
 
-import { useState, type FC, useRef } from 'react';
+import { useState, type FC, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowUpRight, Pencil, RefreshCw, Trash2, Wand2 } from 'lucide-react';
+import { ArrowUpRight, LoaderCircle, Pause, Pencil, RefreshCw, Trash2, Volume2, Wand2 } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from './ui/button';
@@ -13,6 +13,7 @@ import { WireframeBack } from './wireframe-back';
 import { ProjectExplanationDialog } from './project-explanation-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { explainProject, type ExplainProjectOutput } from '@/ai/flows/explain-project-flow';
+import { narrateProject } from '@/ai/flows/narrate-project-flow';
 
 interface ProjectCardProps {
   title: string;
@@ -32,6 +33,11 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
   const [isExplainDialogOpen, setIsExplainDialogOpen] = useState(false);
   const [explanation, setExplanation] = useState<ExplainProjectOutput | null>(null);
   const [isExplaining, setIsExplaining] = useState(false);
+
+  // Narration state
+  const [narrationStatus, setNarrationStatus] = useState<'idle' | 'loading' | 'playing' | 'paused'>('idle');
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const ref = useRef<HTMLDivElement>(null);
   
@@ -94,6 +100,83 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
     }
   };
 
+  const handleNarrationClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const audioElement = audioRef.current;
+    if (!audioElement) return;
+
+    if (narrationStatus === 'loading') return;
+
+    if (narrationStatus === 'playing') {
+      audioElement.pause();
+      setNarrationStatus('paused');
+      return;
+    }
+
+    if (narrationStatus === 'paused') {
+      audioElement.play();
+      setNarrationStatus('playing');
+      return;
+    }
+
+    if (narrationStatus === 'idle') {
+      if (audioUrl) {
+        audioElement.play();
+        setNarrationStatus('playing');
+        return;
+      }
+
+      setNarrationStatus('loading');
+      try {
+        const result = await narrateProject(`${title}. ${description}`);
+        setAudioUrl(result.audioDataUri);
+      } catch (error) {
+        console.error("Failed to narrate project:", error);
+        toast({
+          variant: "destructive",
+          title: "AI Narration Failed",
+          description: "Could not generate narration for this project.",
+        });
+        setNarrationStatus('idle');
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (audioUrl && audioRef.current && narrationStatus === 'loading') {
+      audioRef.current.src = audioUrl;
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          setNarrationStatus('playing');
+        }).catch(error => {
+          console.error("Audio play failed:", error);
+          setNarrationStatus('idle');
+        });
+      }
+    }
+  }, [audioUrl, narrationStatus]);
+
+  useEffect(() => {
+    const audioElement = audioRef.current;
+    if (!audioElement) return;
+
+    const handleEnded = () => setNarrationStatus('idle');
+    audioElement.addEventListener('ended', handleEnded);
+    return () => {
+      audioElement.removeEventListener('ended', handleEnded);
+    };
+  }, []);
+
+  useEffect(() => {
+    if ((isFlipped || isExplainDialogOpen) && narrationStatus === 'playing' && audioRef.current) {
+      audioRef.current.pause();
+      setNarrationStatus('paused');
+    }
+  }, [isFlipped, isExplainDialogOpen, narrationStatus]);
+
   return (
     <>
       <ProjectExplanationDialog
@@ -150,6 +233,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
                       <ArrowUpRight className="ml-1 h-4 w-4" />
                     </Link>
                     <div className="flex items-center">
+                      <audio ref={audioRef} className="hidden" />
                       {isAdmin && (
                         <>
                           <Button variant="ghost" size="icon" onClick={onEdit} aria-label="Edit Project">
@@ -160,6 +244,11 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
                           </Button>
                         </>
                       )}
+                      <Button variant="ghost" size="icon" onClick={handleNarrationClick} aria-label="Narrate with AI" disabled={narrationStatus === 'loading'}>
+                        {narrationStatus === 'loading' && <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />}
+                        {narrationStatus === 'playing' && <Pause className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />}
+                        {(narrationStatus === 'idle' || narrationStatus === 'paused') && <Volume2 className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />}
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={handleExplainClick} aria-label="Explain with AI">
                         <Wand2 className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
                       </Button>
