@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowDown, ArrowRight, FileText } from 'lucide-react';
+import { ArrowDown, ArrowRight, Wand2 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { SparklingText } from '../sparkling-text';
@@ -110,7 +110,7 @@ export function Hero() {
               </Button>
               <Button size="lg" className="font-bold" variant="outline" onClick={handleGenerateResume}>
                 AI Resume
-                <FileText className="ml-2 h-4 w-4" />
+                <Wand2 className="ml-2 h-4 w-4" />
               </Button>
             </motion.div>
           </div>
