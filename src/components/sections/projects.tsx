@@ -51,9 +51,14 @@ export function Projects() {
   const handleLoginSuccess = () => {
     setIsAdmin(true);
   };
+
+  const handleAddNewProject = () => {
+    setEditingProject(null);
+    setIsProjectFormOpen(true);
+  };
   
-  const handleOpenProjectForm = (project: Project | null, index: number | null) => {
-    setEditingProject(project && index !== null ? { project, index } : null);
+  const handleEditProject = (project: Project, index: number) => {
+    setEditingProject({ project, index });
     setIsProjectFormOpen(true);
   };
   
@@ -65,7 +70,7 @@ export function Projects() {
       setProjects(newProjects);
     } else {
       // Adding new project
-      setProjects([submittedProjectData, ...projects]);
+      setProjects((prevProjects) => [submittedProjectData, ...prevProjects]);
     }
     setEditingProject(null);
   };
@@ -129,7 +134,7 @@ export function Projects() {
               </p>
             </div>
              {isAdmin && (
-              <Button onClick={() => handleOpenProjectForm(null, null)}>
+              <Button onClick={handleAddNewProject}>
                 <Plus className="mr-2 h-4 w-4" /> Add Project
               </Button>
             )}
@@ -146,7 +151,7 @@ export function Projects() {
                 <ProjectCard
                   {...project}
                   isAdmin={isAdmin}
-                  onEdit={() => handleOpenProjectForm(project, i)}
+                  onEdit={() => handleEditProject(project, i)}
                 />
               </motion.div>
             ))}
