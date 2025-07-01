@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 
 export function Header() {
   return (
@@ -6,6 +7,7 @@ export function Header() {
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <Link href="/#" className="mr-6 flex items-center space-x-2 pl-[10px]">
           <span className="font-bold sm:inline-block font-headline">Noirfolio</span>
+          <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     </header>
