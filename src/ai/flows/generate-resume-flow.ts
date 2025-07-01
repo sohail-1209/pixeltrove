@@ -18,39 +18,79 @@ export async function generateResume(): Promise<GenerateResumeOutput> {
   return generateResumeFlow();
 }
 
+const GenerateResumeInputSchema = z.object({
+    name: z.string(),
+    title: z.string(),
+    email: z.string(),
+    phone: z.string(),
+    location: z.string(),
+    github: z.string(),
+    linkedin: z.string(),
+    website: z.string(),
+    summary: z.string(),
+    education: z.object({
+        degree: z.string(),
+        college: z.string(),
+        duration: z.string(),
+        cgpa: z.string(),
+        notes: z.array(z.string()),
+    }),
+    languages: z.array(z.object({
+        language: z.string(),
+        proficiency: z.string(),
+    })),
+    interests: z.array(z.string()),
+    skills: z.array(z.string()),
+    projects: z.array(z.object({
+        title: z.string(),
+        description: z.string(),
+        tags: z.array(z.string()),
+        link: z.string(),
+    })),
+});
+
+
 const prompt = ai.definePrompt({
   name: 'generateResumePrompt',
-  input: { schema: z.object({
-      name: z.string(),
-      email: z.string(),
-      github: z.string(),
-      instagram: z.string(),
-      skills: z.array(z.string()),
-      projects: z.array(z.object({
-          title: z.string(),
-          description: z.string(),
-          tags: z.array(z.string()),
-          link: z.string(),
-      })),
-  })},
+  input: { schema: GenerateResumeInputSchema },
   // By removing the output schema, we can handle cases where the model returns null
   // or non-string data without causing a validation error.
-  prompt: `You are a professional resume writer for a creative developer named {{name}}.
-Generate a concise, professional, one-page resume in Markdown format based on the provided information.
+  prompt: `You are a professional resume writer. Generate a polished, one-page resume in Markdown format for a developer named {{name}}, using only the information provided below.
 
-The resume should have the following sections:
-1.  **Header**: Name, email, and links to GitHub and Instagram.
-2.  **Summary**: A 2-3 sentence professional summary highlighting their passion for building beautiful and functional web applications.
-3.  **Skills**: A list of their key technical skills.
-4.  **Projects / Experience**: A list of their projects. For each project, include the title, a brief description, the technologies used (tags), and a link to view the project.
-5.  **Contact**: Reiterate the contact information.
+The resume must include these sections in this order:
+1.  **Header**: Name, Title, and all contact information (Email, Phone, Location, GitHub, LinkedIn, Portfolio Website).
+2.  **Professional Summary**: Use the summary provided.
+3.  **Skills**: List of key technical skills.
+4.  **Projects / Experience**: List of projects. For each project, include the title, a brief description, the technologies used (tags), and a link.
+5.  **Education**: Details of their degree, college, and academic performance.
+6.  **Languages**: List of known languages and their proficiency.
+7.  **Interests**: List of personal interests.
 
 ---
 **Resume Information:**
+
+**Personal Details:**
 - **Name**: {{name}}
+- **Title**: {{title}}
 - **Email**: {{email}}
+- **Phone**: {{phone}}
+- **Location**: {{location}}
 - **GitHub**: {{github}}
-- **Instagram**: {{instagram}}
+- **LinkedIn**: {{linkedin}}
+- **Portfolio Website**: {{website}}
+
+**Professional Summary:**
+{{{summary}}}
+
+**Education:**
+- **Degree**: {{education.degree}}
+- **College**: {{education.college}}
+- **Duration**: {{education.duration}}
+- **CGPA**: {{education.cgpa}}
+- **Notes**:
+{{#each education.notes}}
+  - {{this}}
+{{/each}}
 
 **Skills:**
 {{#each skills}}
@@ -61,9 +101,19 @@ The resume should have the following sections:
 {{#each projects}}
 - **{{title}}**: {{description}} (Tech: {{#each tags}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}) - [View Project]({{link}})
 {{/each}}
+
+**Languages:**
+{{#each languages}}
+- {{language}} ({{proficiency}})
+{{/each}}
+
+**Interests:**
+{{#each interests}}
+- {{this}}
+{{/each}}
 ---
 
-Now, generate the complete resume in well-formatted Markdown.
+Now, generate the complete resume in well-formatted, professional Markdown. Do not add any information not provided above.
 `,
 });
 
@@ -75,19 +125,37 @@ const generateResumeFlow = ai.defineFlow(
   },
   async () => {
     const { skills, projects } = await getProfileData();
+    const githubUrl = socialLinks.find(l => l.name === 'GitHub')?.url || 'https://github.com/sohail-1209';
 
-    const email = socialLinks.find(l => l.name === 'Email')?.url.replace('mailto:', '') || '';
-    const github = socialLinks.find(l => l.name === 'GitHub')?.url || '';
-    const instagram = socialLinks.find(l => l.name === 'Instagram')?.url || '';
-
-    const response = await prompt({
-        name: "Sohail",
-        email,
-        github,
-        instagram,
+    const resumeData = {
+        name: "Mohammad Sohail Pashe",
+        title: "Front-end Developer",
+        email: "SohelPashe@gmail.com",
+        phone: "9553081586",
+        location: "Hyderabad, Telangana",
+        github: githubUrl,
+        linkedin: "[To be updated]",
+        website: "https://github.com/sohail-1209", // Placeholder
+        summary: "Frontend Developer passionate about crafting responsive, user-friendly interfaces using React, HTML, CSS, and Firebase. Eager to contribute to innovative web applications and constantly improve through learning.",
+        education: {
+            degree: "B.Tech in CST (AI & ML)",
+            college: "Shadan College of Engineering and Technology",
+            duration: "2023 – 2027",
+            cgpa: "9.0",
+            notes: ["Participated in multiple hackathons"],
+        },
+        languages: [
+            { language: "English", proficiency: "Fluent" },
+            { language: "Telugu", proficiency: "Fluent" },
+            { language: "Hindi", proficiency: "Fluent" },
+            { language: "Urdu", proficiency: "Basic" },
+        ],
+        interests: ["UI Design", "Gaming"],
         skills,
         projects: projects.map(({title, description, tags, link}) => ({title, description, tags, link})),
-    });
+    };
+
+    const response = await prompt(resumeData);
 
     const output = response.text;
 
