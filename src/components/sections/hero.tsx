@@ -1,9 +1,11 @@
+
 "use client";
 
 import { Button } from '@/components/ui/button';
 import { ArrowDown, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { SparklingText } from '../sparkling-text';
 
 export function Hero() {
   const FADE_DOWN_ANIMATION_VARIANTS = {
@@ -28,12 +30,11 @@ export function Hero() {
     >
       <div className="container px-4 md:px-6 text-center">
         <div className="space-y-4">
-          <motion.h1
-            variants={FADE_DOWN_ANIMATION_VARIANTS}
-            className="text-4xl font-black tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl/none font-headline"
-          >
-            Creative Developer & Designer
-          </motion.h1>
+          <motion.div variants={FADE_DOWN_ANIMATION_VARIANTS}>
+            <SparklingText>
+              Creative Developer & Designer
+            </SparklingText>
+          </motion.div>
           <motion.p
             variants={FADE_DOWN_ANIMATION_VARIANTS}
             className="mx-auto max-w-[700px] text-muted-foreground md:text-xl"
