@@ -238,7 +238,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
           >
             {/* Front Face */}
             <div className="[backface-visibility:hidden]">
-              <Card className="h-full flex flex-col group">
+              <Card className="h-full flex flex-col group transition-shadow duration-300 shadow-[0_0_10px_0px_hsl(var(--orange-accent)/0.5)] hover:shadow-[0_0_20px_2px_hsl(var(--orange-accent)/0.7)]">
                 <CardContent className="p-6 flex-grow">
                   <div className="w-[50px] h-[50px] overflow-hidden clip-decagon mb-4">
                     <Image

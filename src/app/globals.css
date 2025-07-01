@@ -23,6 +23,7 @@
     --accent-foreground: 0 0% 100%;
     --pink-accent: 340 92% 60%;
     --violet-accent: 270 90% 65%;
+    --orange-accent: 27 87% 67%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 87%;
@@ -53,6 +54,7 @@
     --accent-foreground: 0 0% 10.2%;
     --pink-accent: 340 92% 60%;
     --violet-accent: 270 90% 65%;
+    --orange-accent: 30 80% 55%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 20%;
