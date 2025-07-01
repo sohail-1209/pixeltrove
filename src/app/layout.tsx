@@ -8,6 +8,9 @@ import { ScrollProgressBar } from '@/components/scroll-progress-bar';
 export const metadata: Metadata = {
   title: 'Mohammad Sohail | A Minimalist Portfolio',
   description: 'A modern and minimalist portfolio built with Next.js and Tailwind CSS.',
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({
