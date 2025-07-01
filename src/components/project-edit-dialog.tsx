@@ -40,7 +40,7 @@ type ProjectSchema = z.infer<typeof projectSchema>;
 interface ProjectEditDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (project: Project) => void;
+  onSubmit: (project: Omit<Project, 'id'>) => void;
   project: Project | null;
 }
 
@@ -70,11 +70,15 @@ export function ProjectEditDialog({ open, onOpenChange, onSubmit, project }: Pro
   }, [project, open, form]);
 
   const handleFormSubmit = (data: ProjectSchema) => {
-    const finalProjectData: Project = {
-      ...data,
-      tags: data.tags.split(",").map(tag => tag.trim()),
+    const projectDataForFirestore = {
+      title: data.title,
+      description: data.description,
+      image: data.image,
+      tags: data.tags.split(',').map(tag => tag.trim()),
+      link: data.link,
+      aiHint: data.aiHint,
     };
-    onSubmit(finalProjectData);
+    onSubmit(projectDataForFirestore);
   };
   
   return (

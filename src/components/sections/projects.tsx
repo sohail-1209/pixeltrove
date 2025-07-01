@@ -85,13 +85,12 @@ export function Projects() {
     setIsProjectFormOpen(true);
   };
   
-  const handleSubmitProject = async (submittedProjectData: Project) => {
+  const handleSubmitProject = async (submittedProjectData: Omit<Project, 'id'>) => {
     try {
       if (editingProject && editingProject.id) {
         // Editing existing project
         const projectRef = doc(db, 'projects', editingProject.id);
-        const { id, ...dataToUpdate } = submittedProjectData;
-        await updateDoc(projectRef, dataToUpdate);
+        await updateDoc(projectRef, submittedProjectData);
       } else {
         // Adding new project
         await addDoc(collection(db, 'projects'), submittedProjectData);
