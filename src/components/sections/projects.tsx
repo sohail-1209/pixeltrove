@@ -69,50 +69,62 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
   const scrollableDistance = Math.max(0, contentHeight - containerHeight);
   const internalY = hasAnimatedScroll && scrollProgress ? useTransform(scrollProgress, [0, 1], [0, -scrollableDistance]) : useMotionValue(0);
 
-  const fetchProjects = async () => {
-    setLoading(true);
-    try {
-      const projectsCollection = collection(db, 'projects');
-      const projectSnapshot = await getDocs(projectsCollection);
-      const projectList = projectSnapshot.docs
-        .map(doc => {
-          if (!doc.exists()) return null;
-          
-          const data = doc.data();
-          if (
-            typeof data.title !== 'string' ||
-            typeof data.description !== 'string' ||
-            typeof data.image !== 'string' ||
-            !Array.isArray(data.tags) ||
-            typeof data.link !== 'string' ||
-            typeof data.aiHint !== 'string'
-          ) {
-            console.warn(`Skipping malformed project document with id: ${doc.id}`);
-            return null;
-          }
-
-          return { id: doc.id, ...data } as Project;
-        })
-        .filter((p): p is Project => p !== null);
-      setProjects(projectList);
-    } catch (error) {
-      console.error("Error fetching projects: ", error);
-      toast({
-        variant: "destructive",
-        title: "Failed to load projects",
-        description: "Please check your Firestore security rules and browser console for more details.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchProjects = async () => {
+      setLoading(true);
+      try {
+        const projectsCollection = collection(db, 'projects');
+        const projectSnapshot = await getDocs(projectsCollection);
+        const projectList = projectSnapshot.docs
+          .map(doc => {
+            if (!doc.exists()) return null;
+            
+            const data = doc.data();
+            if (
+              typeof data.title !== 'string' ||
+              typeof data.description !== 'string' ||
+              typeof data.image !== 'string' ||
+              !Array.isArray(data.tags) ||
+              typeof data.link !== 'string' ||
+              typeof data.aiHint !== 'string'
+            ) {
+              console.warn(`Skipping malformed project document with id: ${doc.id}`);
+              return null;
+            }
+
+            return { id: doc.id, ...data } as Project;
+          })
+          .filter((p): p is Project => p !== null);
+        setProjects(projectList);
+      } catch (error) {
+        console.error("Error fetching projects: ", error);
+        toast({
+          variant: "destructive",
+          title: "Failed to load projects",
+          description: "Please check your Firestore security rules and browser console for more details.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    try {
+      if (localStorage.getItem("isAdmin") === "true") {
+        setIsAdmin(true);
+      }
+    } catch (error) {
+      console.warn("Could not read admin status from localStorage", error);
+    }
     fetchProjects();
-  }, []);
+  }, [toast]);
 
   const handleLoginSuccess = () => {
     setIsAdmin(true);
+    try {
+      localStorage.setItem('isAdmin', 'true');
+    } catch (error) {
+      console.warn('Could not save admin status to localStorage', error);
+    }
   };
 
   const handleAddNewProject = () => {
@@ -135,7 +147,11 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
     try {
         await deleteDoc(doc(db, 'projects', deletingProject.id));
         toast({ title: "Project deleted successfully!" });
-        fetchProjects(); // Re-fetch to update list
+        // Re-fetch projects after deletion
+        const projectsCollection = collection(db, 'projects');
+        const projectSnapshot = await getDocs(projectsCollection);
+        const projectList = projectSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
+        setProjects(projectList);
     } catch (error) {
         console.error("Error deleting project: ", error);
         toast({
@@ -150,14 +166,18 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
   
   const handleSubmitProject = async (submittedProjectData: Omit<Project, 'id'>) => {
     try {
+      let currentProjects = projects;
       if (editingProject && editingProject.id) {
         const projectRef = doc(db, 'projects', editingProject.id);
         await updateDoc(projectRef, submittedProjectData);
+        currentProjects = projects.map(p => p.id === editingProject.id ? { ...p, ...submittedProjectData } : p);
         toast({ title: "Project updated successfully!" });
       } else {
-        await addDoc(collection(db, 'projects'), submittedProjectData);
+        const newDocRef = await addDoc(collection(db, 'projects'), submittedProjectData);
+        currentProjects = [...projects, { id: newDocRef.id, ...submittedProjectData }];
         toast({ title: "Project added successfully!" });
       }
+      setProjects(currentProjects);
     } catch (error) {
         console.error("Error saving project: ", error);
         toast({
@@ -168,7 +188,6 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
     } finally {
         setEditingProject(null);
         setIsProjectFormOpen(false);
-        fetchProjects();
     }
   };
 
