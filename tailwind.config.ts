@@ -41,6 +41,7 @@ export default {
           DEFAULT: 'hsl(var(--accent))',
           foreground: 'hsl(var(--accent-foreground))',
         },
+        pink_accent: 'hsl(var(--pink-accent))',
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
@@ -98,11 +99,20 @@ export default {
             opacity: '1',
           },
         },
+        'pulse-glow-pink': {
+          '0%, 100%': {
+              boxShadow: '0 0 3px 0px hsl(var(--pink-accent)), 0 0 6px 0px hsl(var(--pink-accent) / 0.7)',
+          },
+          '50%': {
+              boxShadow: '0 0 10px 2px hsl(var(--pink-accent)), 0 0 14px 2px hsl(var(--pink-accent) / 0.7)',
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'pulse-glow': 'pulse-glow 2.5s ease-in-out infinite',
+        'pulse-glow-pink': 'pulse-glow-pink 2.5s ease-in-out infinite',
       },
     },
   },
