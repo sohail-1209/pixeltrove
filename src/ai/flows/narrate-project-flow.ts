@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI flow to generate voice narration for a project description.
@@ -8,7 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit/zod';
+import {z} from 'zod';
 import wav from 'wav';
 import {googleAI} from '@genkit-ai/googleai';
 
