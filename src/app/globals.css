@@ -93,15 +93,18 @@
     @apply absolute inset-0 w-full h-full;
     @apply bg-background;
     @apply bg-clip-text text-transparent;
+    opacity: 0;
   }
   .glitch:hover:before {
     @apply animate-glitch-1;
     left: 2px;
     text-shadow: -2px 0 hsl(var(--violet-accent));
+    opacity: 1;
   }
   .glitch:hover:after {
     @apply animate-glitch-2;
     left: -2px;
     text-shadow: -2px 0 hsl(var(--accent)), 2px 2px hsl(var(--pink-accent));
+    opacity: 1;
   }
 }
