@@ -7,7 +7,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CardTitle } from '@/components/ui/card';
-import { motion, useMotionValue, useSpring, useTransform, useAnimation } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 interface ProjectCardProps {
   title: string;
@@ -27,10 +27,8 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
   const mouseX = useSpring(x, { stiffness: 100, damping: 15, restDelta: 0.001 });
   const mouseY = useSpring(y, { stiffness: 100, damping: 15, restDelta: 0.001 });
 
-  const rotateX = useTransform(mouseY, [-150, 150], ["8deg", "-8deg"]);
-  const rotateY = useTransform(mouseX, [-150, 150], ["-8deg", "8deg"]);
-
-  const controls = useAnimation();
+  const rotateX = useTransform(mouseY, [-150, 150], ["10deg", "-10deg"]);
+  const rotateY = useTransform(mouseX, [-150, 150], ["-10deg", "10deg"]);
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -43,32 +41,19 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
     y.set(0);
   };
 
-  const handleContextMenu = (e: MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    controls.start({
-      rotateY: [0, 360],
-      transition: { duration: 0.7, ease: "easeInOut" },
-    });
-  };
-
   return (
-    <motion.div
+    <MotionCard
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      onContextMenu={handleContextMenu}
       style={{
         rotateX,
         rotateY,
         transformStyle: "preserve-3d",
       }}
-      className="h-full w-full"
+      className="flex flex-col overflow-hidden h-full group shadow-md bg-card"
     >
-      <MotionCard
-        animate={controls}
-        className="flex flex-col overflow-hidden h-full group shadow-md"
-        style={{ transformStyle: 'preserve-3d', transform: 'translateZ(1px)' }}
-      >
-        <CardHeader className="p-0">
+      <div style={{ transformStyle: "preserve-3d" }}>
+        <CardHeader className="p-0" style={{ transform: "translateZ(20px)"}}>
           <div className="aspect-video overflow-hidden">
             <Image
               src={image}
@@ -80,11 +65,11 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
             />
           </div>
         </CardHeader>
-        <CardContent className="p-6 flex-grow">
+        <CardContent className="p-6 flex-grow" style={{ transform: "translateZ(40px)"}}>
           <CardTitle className="mb-2 text-xl font-bold font-headline">{title}</CardTitle>
           <p className="text-muted-foreground">{description}</p>
         </CardContent>
-        <CardFooter className="p-6 pt-0 flex flex-col items-start gap-4">
+        <CardFooter className="p-6 pt-0 flex flex-col items-start gap-4" style={{ transform: "translateZ(30px)"}}>
           <div className="flex flex-wrap gap-2">
             {tags.map((tag) => (
               <Badge key={tag} variant="secondary">{tag}</Badge>
@@ -95,7 +80,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
             <ArrowUpRight className="ml-1 h-4 w-4" />
           </Link>
         </CardFooter>
-      </MotionCard>
-    </motion.div>
+      </div>
+    </MotionCard>
   );
 };
