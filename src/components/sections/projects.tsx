@@ -287,7 +287,7 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
                       Array.from({ length: 4 }).map((_, i) => (
                         <div key={i}>
                             <div className="flex flex-col h-full rounded-lg border bg-card shadow-sm p-6 space-y-4">
-                              <Skeleton className="aspect-video w-full" />
+                              <Skeleton className="aspect-square w-full" />
                               <Skeleton className="h-6 w-3/4" />
                               <Skeleton className="h-4 w-full" />
                               <Skeleton className="h-4 w-5/6" />
