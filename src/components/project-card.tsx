@@ -7,7 +7,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CardTitle } from '@/components/ui/card';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, useAnimation } from 'framer-motion';
 
 interface ProjectCardProps {
   title: string;
@@ -18,6 +18,8 @@ interface ProjectCardProps {
   aiHint: string;
 }
 
+const MotionCard = motion(Card);
+
 export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, tags, link, aiHint }) => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -27,6 +29,8 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
 
   const rotateX = useTransform(mouseY, [-150, 150], ["8deg", "-8deg"]);
   const rotateY = useTransform(mouseX, [-150, 150], ["-8deg", "8deg"]);
+
+  const controls = useAnimation();
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -39,10 +43,21 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
     y.set(0);
   };
 
+  const handleContextMenu = (e: MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    controls.start({
+      rotateY: '360deg',
+      transition: { duration: 0.8, ease: "easeInOut" },
+    }).then(() => {
+      controls.set({ rotateY: '0deg' });
+    });
+  };
+
   return (
     <motion.div
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onContextMenu={handleContextMenu}
       style={{
         rotateX,
         rotateY,
@@ -50,7 +65,8 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
       }}
       className="h-full w-full"
     >
-      <Card 
+      <MotionCard
+        animate={controls}
         className="flex flex-col overflow-hidden h-full group shadow-md"
         style={{ transformStyle: 'preserve-3d', transform: 'translateZ(1px)' }}
       >
@@ -81,7 +97,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
             <ArrowUpRight className="ml-1 h-4 w-4" />
           </Link>
         </CardFooter>
-      </Card>
+      </MotionCard>
     </motion.div>
   );
 };
