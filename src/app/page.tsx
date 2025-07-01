@@ -4,7 +4,7 @@ import { Hero } from "@/components/sections/hero";
 import { Projects } from "@/components/sections/projects";
 import { About } from "@/components/sections/about";
 import { Contact } from "@/components/sections/contact";
-import { useScroll, motion, useTransform, type MotionValue } from "framer-motion";
+import { useScroll, motion, useTransform, useSpring, type MotionValue } from "framer-motion";
 import { useRef } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -63,6 +63,12 @@ export default function Home() {
           const opacity = useTransform(scrollYProgress, inputRange, [isFirst ? 1 : 0, 1, 1, isLast ? 1 : 0]);
           const scale = useTransform(scrollYProgress, inputRange, [isFirst ? 1 : 0.8, 1, 1, isLast ? 1 : 0.8]);
           const z = useTransform(scrollYProgress, inputRange, [isFirst ? 0 : -800, 0, 0, isLast ? 0 : -800]);
+
+          // Apply spring physics for smoother transitions
+          const smoothOpacity = useSpring(opacity, { stiffness: 400, damping: 40 });
+          const smoothScale = useSpring(scale, { stiffness: 400, damping: 40 });
+          const smoothZ = useSpring(z, { stiffness: 400, damping: 40 });
+          
           const zIndex = useTransform(opacity, (val) => val > 0.5 ? 20 : 0);
           
           const internalScrollProgress = useTransform(
@@ -79,9 +85,9 @@ export default function Home() {
               id={section.id}
               className="absolute top-0 left-0 w-full h-screen"
               style={{
-                opacity,
-                scale,
-                z,
+                opacity: smoothOpacity,
+                scale: smoothScale,
+                z: smoothZ,
                 zIndex,
               }}
             >
