@@ -11,6 +11,7 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { SkillsEditDialog } from '../skills-edit-dialog';
+import { TypeAnimation } from 'react-type-animation';
 
 export function About() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -114,9 +115,25 @@ export function About() {
           <div className="grid gap-10 lg:grid-cols-2 items-center">
             <div className="space-y-4">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">About Me</h2>
-              <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                I'm a passionate developer with a knack for creating beautiful and functional web applications. With a background in both design and engineering, I bridge the gap between aesthetics and technology to deliver exceptional user experiences. I thrive on solving complex problems and continuously learning new skills.
-              </p>
+              <div className="min-h-[80px]">
+                <TypeAnimation
+                  sequence={[
+                    "I'm Sohail.",
+                    2000,
+                    "I'm a passionate developer.",
+                    2000,
+                    "I build beautiful and functional web applications.",
+                    2000,
+                    "I thrive on solving complex problems.",
+                    2000,
+                  ]}
+                  wrapper="p"
+                  speed={50}
+                  repeat={Infinity}
+                  cursor={true}
+                  className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed"
+                />
+              </div>
             </div>
             <div className="flex flex-col items-start space-y-4">
                <div className="flex items-center gap-4 w-full">
