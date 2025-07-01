@@ -1,8 +1,7 @@
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { WheelEvent } from "react";
+import { useEffect, useState } from "react";
 import { ProjectCard } from "@/components/project-card";
 import { type Project } from "@/lib/data";
 import { motion } from "framer-motion";
@@ -21,8 +20,6 @@ export function Projects() {
     show: { opacity: 1, y: 0, transition: { type: 'spring' } },
   };
 
-  const sectionRef = useRef<HTMLDivElement>(null);
-  
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   
@@ -76,28 +73,6 @@ export function Projects() {
     fetchProjects();
   }, []);
 
-  const onWheel = (e: WheelEvent<HTMLDivElement>) => {
-    const el = sectionRef.current;
-    if (!el) return;
-
-    if (el.scrollHeight <= el.clientHeight) {
-      return;
-    }
-
-    const isScrollingUp = e.deltaY < 0;
-    const isScrollingDown = e.deltaY > 0;
-    const isAtTop = el.scrollTop === 0;
-    const isAtBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + 1;
-
-    if ((isAtTop && isScrollingUp) || (isAtBottom && isScrollingDown)) {
-      return;
-    }
-
-    e.preventDefault();
-    e.stopPropagation();
-    el.scrollTop += e.deltaY;
-  };
-
   const handleLoginSuccess = () => {
     setIsAdmin(true);
   };
@@ -142,7 +117,7 @@ export function Projects() {
           },
         },
       }}
-      className="relative w-full h-screen"
+      className="relative w-full h-screen overflow-y-auto"
     >
       <AdminLoginDialog open={isLoginOpen} onOpenChange={setIsLoginOpen} onLoginSuccess={handleLoginSuccess} />
       <ProjectEditDialog 
@@ -171,12 +146,7 @@ export function Projects() {
         </motion.div>
       </div>
 
-      <div
-        ref={sectionRef}
-        onWheel={onWheel}
-        className="w-full h-full overflow-y-auto py-24"
-      >
-        <div className="container px-4 md:px-6">
+      <div className="container px-4 md:px-6 py-24">
           <motion.div
             variants={FADE_UP_ANIMATION_VARIANTS}
             className="flex flex-col items-center justify-center space-y-4 text-center relative z-20"
@@ -237,7 +207,6 @@ export function Projects() {
               </motion.div>
             )}
           </div>
-        </div>
       </div>
     </motion.div>
   );
