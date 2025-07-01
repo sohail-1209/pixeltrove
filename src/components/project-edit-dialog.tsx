@@ -60,7 +60,7 @@ export function ProjectEditDialog({ open, onOpenChange, onSubmit, project }: Pro
         form.reset({
           title: "",
           description: "",
-          image: "https://placehold.co/100x100.png",
+          image: "https://placehold.co/50x50.png",
           tags: "",
           link: "#",
           aiHint: "",
