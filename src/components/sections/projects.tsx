@@ -109,13 +109,31 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
     };
 
     try {
-      if (localStorage.getItem("isAdmin") === "true") {
+      const adminStatus = localStorage.getItem("isAdmin") === "true";
+      if (adminStatus) {
         setIsAdmin(true);
       }
     } catch (error) {
       console.warn("Could not read admin status from localStorage", error);
     }
+    
     fetchProjects();
+
+    const handleAdminStatusChange = () => {
+      try {
+        const adminStatus = localStorage.getItem('isAdmin') === 'true';
+        setIsAdmin(adminStatus);
+      } catch (error) {
+        console.warn('Could not read admin status from localStorage', error);
+      }
+    };
+
+    window.addEventListener('admin-status-change', handleAdminStatusChange);
+
+    return () => {
+      window.removeEventListener('admin-status-change', handleAdminStatusChange);
+    };
+
   }, [toast]);
 
   const handleLoginSuccess = () => {
@@ -232,7 +250,7 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
             </Button>
             <div className="flex flex-col items-center gap-2">
                 <span className="text-xs uppercase tracking-widest [writing-mode:vertical-rl] text-center">Scroll</span>
-                <div className="h-24 w-px bg-current"></div>
+                <div className="h-24 w-0.5 rounded-full bg-accent animate-pulse-glow"></div>
                 <ArrowDown className="h-5 w-5 animate-bounce"/>
             </div>
         </div>
