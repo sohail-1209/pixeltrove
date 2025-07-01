@@ -81,6 +81,11 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
     e.stopPropagation();
 
     setIsExplainDialogOpen(true);
+    // Don't re-fetch if we already have the explanation or if it's currently loading.
+    if (explanation || isExplaining || narrationStatus === 'loading') {
+      return;
+    }
+
     setIsExplaining(true);
     setExplanation(null);
 
@@ -107,40 +112,67 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
     const audioElement = audioRef.current;
     if (!audioElement) return;
 
-    if (narrationStatus === 'loading') return;
-
+    // Handle play/pause toggles for existing audio
     if (narrationStatus === 'playing') {
       audioElement.pause();
       setNarrationStatus('paused');
       return;
     }
-
     if (narrationStatus === 'paused') {
       audioElement.play();
       setNarrationStatus('playing');
       return;
     }
 
-    if (narrationStatus === 'idle') {
-      if (audioUrl) {
-        audioElement.play();
-        setNarrationStatus('playing');
-        return;
+    // If another AI process is running, don't start a new one.
+    if (narrationStatus === 'loading' || isExplaining) return;
+
+    // If we have a ready-to-play audio URL, play it.
+    if (audioUrl) {
+      audioElement.play();
+      setNarrationStatus('playing');
+      return;
+    }
+
+    // --- Start new narration generation ---
+    setNarrationStatus('loading');
+    try {
+      let explanationData = explanation;
+
+      // Step 1: Get the explanation. If we don't have it, fetch it.
+      if (!explanationData) {
+        setIsExplaining(true); // Signal that we are fetching explanation data
+        try {
+          explanationData = await explainProject({ projectUrl: link, title, description, tags });
+          setExplanation(explanationData);
+        } finally {
+          setIsExplaining(false); // Done fetching explanation
+        }
       }
 
-      setNarrationStatus('loading');
-      try {
-        const result = await narrateProject(`${title}. ${description}`);
-        setAudioUrl(result.audioDataUri);
-      } catch (error) {
-        console.error("Failed to narrate project:", error);
-        toast({
-          variant: "destructive",
-          title: "AI Narration Failed",
-          description: "Could not generate narration for this project.",
-        });
-        setNarrationStatus('idle');
+      if (!explanationData) {
+        throw new Error("Could not retrieve project explanation.");
       }
+
+      // Step 2: Use the explanation to generate narration.
+      const textToNarrate = [
+        explanationData.summary,
+        "Key features include: " + explanationData.features.join(", and ") + ".",
+        explanationData.techStack,
+      ].join(" ");
+      
+      const narrationResult = await narrateProject(textToNarrate);
+      setAudioUrl(narrationResult.audioDataUri);
+      
+    } catch (error) {
+      console.error("Failed to narrate project:", error);
+      toast({
+        variant: "destructive",
+        title: "AI Narration Failed",
+        description: "Could not generate an explanation or narration for this project.",
+      });
+      setNarrationStatus('idle'); // Reset on error
+      if (isExplaining) setIsExplaining(false); // Also reset if it was fetching explanation
     }
   };
 
@@ -244,13 +276,13 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
                           </Button>
                         </>
                       )}
-                      <Button variant="ghost" size="icon" onClick={handleNarrationClick} aria-label="Narrate with AI" disabled={narrationStatus === 'loading'}>
+                      <Button variant="ghost" size="icon" onClick={handleNarrationClick} aria-label="Narrate with AI" disabled={narrationStatus === 'loading' || isExplaining}>
                         {narrationStatus === 'loading' && <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />}
                         {narrationStatus === 'playing' && <Pause className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />}
                         {(narrationStatus === 'idle' || narrationStatus === 'paused') && <Volume2 className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />}
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={handleExplainClick} aria-label="Explain with AI">
-                        <Wand2 className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
+                      <Button variant="ghost" size="icon" onClick={handleExplainClick} aria-label="Explain with AI" disabled={isExplaining || narrationStatus === 'loading'}>
+                        {isExplaining ? <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" /> : <Wand2 className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />}
                       </Button>
                       <Button variant="ghost" size="icon" onClick={handleFlip} aria-label="Flip Card">
                         <RefreshCw className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
