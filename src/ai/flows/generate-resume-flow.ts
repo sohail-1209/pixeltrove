@@ -33,7 +33,8 @@ const prompt = ai.definePrompt({
           link: z.string(),
       })),
   })},
-  output: { schema: GenerateResumeOutputSchema },
+  // By removing the output schema, we can handle cases where the model returns null
+  // or non-string data without causing a validation error.
   prompt: `You are a professional resume writer for a creative developer named {{name}}.
 Generate a concise, professional, one-page resume in Markdown format based on the provided information.
 
@@ -79,7 +80,7 @@ const generateResumeFlow = ai.defineFlow(
     const github = socialLinks.find(l => l.name === 'GitHub')?.url || '';
     const instagram = socialLinks.find(l => l.name === 'Instagram')?.url || '';
 
-    const { output } = await prompt({
+    const response = await prompt({
         name: "Sohail",
         email,
         github,
@@ -88,8 +89,10 @@ const generateResumeFlow = ai.defineFlow(
         projects: projects.map(({title, description, tags, link}) => ({title, description, tags, link})),
     });
 
+    const output = response.text;
+
     if (!output) {
-        console.error("Resume generation failed: AI returned null output.");
+        console.error("Resume generation failed: AI returned null or empty output.");
         return "## Error: Resume Generation Failed\n\nThe AI was unable to generate the resume content at this time. This could be due to a temporary service issue. Please try again later.";
     }
 
