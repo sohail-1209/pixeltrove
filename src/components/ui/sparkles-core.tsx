@@ -52,8 +52,8 @@ export const SparklesCore = ({
           }}
           initial={{ opacity: 0 }}
           animate={{
-            x: [sparkle.x, sparkle.x + (Math.random() - 0.5) * 20],
-            y: [sparkle.y, sparkle.y + (Math.random() - 0.5) * 20],
+            x: [0, (Math.random() - 0.5) * 20, 0],
+            y: [0, (Math.random() - 0.5) * 20, 0],
             opacity: [0, sparkle.opacity, 0],
           }}
           transition={{
@@ -61,7 +61,7 @@ export const SparklesCore = ({
             repeat: Infinity,
             repeatType: "loop",
             delay: Math.random() * 2,
-            ease: "linear"
+            ease: "easeInOut"
           }}
         />
       ))}
