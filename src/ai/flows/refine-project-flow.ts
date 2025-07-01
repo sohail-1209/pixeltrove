@@ -1,11 +1,9 @@
 
 'use server';
 /**
- * @fileOverview An AI flow to refine project details for clarity and professionalism.
+ * @fileOverview An AI flow to improvise and refine project details for clarity and professionalism.
  *
  * - refineProject - A function that refines project text content.
- * - RefineProjectInput - The input type for the refineProject function.
- * - RefineProjectOutput - The return type for the refineProject function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -16,14 +14,14 @@ const RefineProjectInputSchema = z.object({
   description: z.string().describe('The current description of the project.'),
   tags: z.array(z.string()).describe('The list of technologies used in the project.'),
 });
-export type RefineProjectInput = z.infer<typeof RefineProjectInputSchema>;
+type RefineProjectInput = z.infer<typeof RefineProjectInputSchema>;
 
 const RefineProjectOutputSchema = z.object({
-  refinedTitle: z.string().describe('The refined title with the first letter capitalized.'),
-  refinedDescription: z.string().describe('The refined description, professionally worded with the first letter capitalized.'),
-  refinedTags: z.array(z.string()).describe('The list of tags, with the first letter of each tag capitalized and duplicates removed.'),
+  refinedTitle: z.string().describe('The refined title, professionally worded and capitalized.'),
+  refinedDescription: z.string().describe('The refined description, professionally worded and capitalized.'),
+  refinedTags: z.array(z.string()).describe('The list of tags, with standardized capitalization and duplicates removed.'),
 });
-export type RefineProjectOutput = z.infer<typeof RefineProjectOutputSchema>;
+type RefineProjectOutput = z.infer<typeof RefineProjectOutputSchema>;
 
 export async function refineProject(input: RefineProjectInput): Promise<RefineProjectOutput> {
   return refineProjectFlow(input);
@@ -33,15 +31,19 @@ const prompt = ai.definePrompt({
   name: 'refineProjectPrompt',
   input: {schema: RefineProjectInputSchema},
   output: {schema: RefineProjectOutputSchema},
-  prompt: `You are an expert copy editor for a developer portfolio.
-Your task is to review the provided project details and refine them for clarity, professionalism, and consistency.
+  prompt: `You are an expert copywriter and portfolio consultant. Your task is to improvise and improve the provided project details to make them sound more professional, engaging, and impactful for a tech portfolio.
 
-Follow these instructions precisely:
-1.  **Title:** Review the title "{{title}}". Ensure it starts with a capital letter. Make it concise and impactful.
-2.  **Description:** Review the description "{{description}}". Correct any grammar or spelling mistakes. Ensure it is written in a professional tone and starts with a capital letter.
-3.  **Tags:** Review the list of tags: {{#each tags}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}. For each tag, ensure it starts with a capital letter. Remove any duplicate tags.
+**Project Details to Improvise:**
+- **Current Title:** "{{title}}"
+- **Current Description:** "{{description}}"
+- **Current Tags:** {{#each tags}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}
 
-Return the refined content in the specified output format.
+**Your Goal:**
+1.  **Title:** Rewrite the title to be more compelling and descriptive. It should be concise and grab attention.
+2.  **Description:** Rewrite the description to be more professional and clear. Correct any grammatical errors, improve the wording, and highlight the project's value. Ensure it starts with a capital letter.
+3.  **Tags:** Review the list of tags. Standardize their capitalization (e.g., 'next.js' becomes 'Next.js'). Remove any duplicates and ensure they accurately represent common technologies.
+
+Return the improved content in the specified output format. Do not change the core meaning, just enhance the presentation.
 `,
 });
 

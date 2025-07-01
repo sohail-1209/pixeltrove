@@ -51,7 +51,7 @@ export function ProjectEditDialog({ open, onOpenChange, onSubmit, project }: Pro
   const form = useForm<ProjectSchema>({
     resolver: zodResolver(projectSchema),
   });
-  const [isRefining, setIsRefining] = useState(false);
+  const [isImprovising, setIsImprovising] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -74,8 +74,8 @@ export function ProjectEditDialog({ open, onOpenChange, onSubmit, project }: Pro
     }
   }, [project, open, form]);
 
-  const handleRefineWithAI = async () => {
-    setIsRefining(true);
+  const handleImproviseWithAI = async () => {
+    setIsImprovising(true);
     try {
       const currentData = form.getValues();
       const tagsArray = currentData.tags.split(',').map(tag => tag.trim()).filter(Boolean);
@@ -91,19 +91,19 @@ export function ProjectEditDialog({ open, onOpenChange, onSubmit, project }: Pro
       form.setValue('tags', refinedData.refinedTags.join(', '), { shouldValidate: true });
 
       toast({
-        title: "Content refined!",
-        description: "AI has updated the project details.",
+        title: "Content improvised!",
+        description: "AI has improved the project details.",
       });
 
     } catch (error) {
-      console.error("AI refinement failed:", error);
+      console.error("AI improvisation failed:", error);
       toast({
         variant: "destructive",
-        title: "AI Refinement Failed",
-        description: "Could not refine the content. Please try again.",
+        title: "AI Improvisation Failed",
+        description: "Could not improvise the content. Please try again.",
       });
     } finally {
-      setIsRefining(false);
+      setIsImprovising(false);
     }
   };
   
@@ -130,9 +130,9 @@ export function ProjectEditDialog({ open, onOpenChange, onSubmit, project }: Pro
                 {project ? "Make changes to your project here." : "Fill in the details for your new project."} Click save when you're done.
               </DialogDescription>
             </div>
-            <Button type="button" variant="outline" size="sm" onClick={handleRefineWithAI} disabled={isRefining} className="shrink-0">
-              {isRefining ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-              Refine
+            <Button type="button" variant="outline" size="sm" onClick={handleImproviseWithAI} disabled={isImprovising} className="shrink-0">
+              {isImprovising ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+              Improvise with AI
             </Button>
           </div>
         </DialogHeader>
