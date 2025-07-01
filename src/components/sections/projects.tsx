@@ -1,10 +1,9 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { ProjectCard } from "@/components/project-card";
 import { type Project } from "@/lib/data";
-import { Shield, Plus } from "lucide-react";
+import { Shield, Plus, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AdminLoginDialog } from "@/components/admin-login-dialog";
 import { ProjectEditDialog } from "@/components/project-edit-dialog";
@@ -106,7 +105,7 @@ export function Projects() {
 
   return (
     <section
-      className="w-full h-screen bg-background flex flex-col"
+      className="w-full h-screen bg-background flex flex-col relative"
     >
       <AdminLoginDialog open={isLoginOpen} onOpenChange={setIsLoginOpen} onLoginSuccess={handleLoginSuccess} />
       <ProjectEditDialog 
@@ -116,16 +115,22 @@ export function Projects() {
         project={editingProject}
       />
       
+      {/* Right-side container for Admin icon and scroll text */}
+      <div className="absolute top-1/2 right-4 md:right-8 -translate-y-1/2 z-10 flex flex-col items-center gap-8 text-muted-foreground">
+        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => setIsLoginOpen(true)}>
+          <Shield className="h-6 w-6" />
+          <span className="sr-only">Admin Login</span>
+        </Button>
+        <div className="flex flex-col items-center gap-2">
+            <span className="text-xs uppercase tracking-widest [writing-mode:vertical-rl] text-center">Scroll</span>
+            <div className="h-24 w-px bg-current"></div>
+            <ArrowDown className="h-5 w-5 animate-bounce"/>
+        </div>
+      </div>
+      
       {/* Header section */}
-      <div className="relative pt-12 pb-8">
+      <div className="pt-12 pb-8">
         <div className="container px-4 md:px-6">
-          <div className="absolute top-8 right-4 md:right-8 flex flex-col items-center gap-4 text-muted-foreground z-10">
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => setIsLoginOpen(true)}>
-              <Shield className="h-6 w-6" />
-              <span className="sr-only">Admin Login</span>
-            </Button>
-          </div>
-
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Featured Projects</h2>
