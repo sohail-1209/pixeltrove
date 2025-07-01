@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, Copy, Download } from 'lucide-react';
+import { Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ResumeViewDialogProps {
@@ -24,28 +24,121 @@ interface ResumeViewDialogProps {
 
 export function ResumeViewDialog({ open, onOpenChange, resumeContent, isLoading }: ResumeViewDialogProps) {
   const { toast } = useToast();
-  const [hasCopied, setHasCopied] = useState(false);
 
-  const handleCopy = () => {
-    if (resumeContent) {
-      navigator.clipboard.writeText(resumeContent);
-      setHasCopied(true);
-      toast({ title: "Copied to clipboard!" });
-      setTimeout(() => setHasCopied(false), 2000);
+  const resumeStyles = `
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+    
+    .resume-container {
+      font-family: 'Inter', sans-serif;
+      color: #333;
+      line-height: 1.6;
+      font-size: 10pt;
     }
-  };
+    .resume-header {
+      text-align: center;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .resume-header h1 {
+      font-size: 22pt;
+      margin: 0;
+      font-weight: 700;
+      color: #111;
+    }
+    .resume-header h2 {
+      font-size: 13pt;
+      margin: 5px 0;
+      font-weight: 500;
+      color: #444;
+    }
+    .contact-info p {
+      margin: 2px 0;
+      font-size: 9pt;
+      color: #555;
+    }
+    a, a:visited {
+      color: hsl(var(--accent));
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .resume-section {
+      margin-bottom: 20px;
+    }
+    .resume-section h3 {
+      font-size: 12pt;
+      font-weight: 700;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .resume-section .item {
+      margin-bottom: 10px;
+    }
+    .resume-section h4 {
+      font-size: 11pt;
+      font-weight: 700;
+      margin: 0 0 2px 0;
+    }
+    .resume-section p {
+      margin: 0 0 5px 0;
+    }
+    ul, ol {
+      padding-left: 20px;
+      margin-top: 5px;
+    }
+    .skills-list {
+      list-style: none;
+      padding: 0;
+      columns: 3;
+      gap: 10px;
+    }
+    .skills-list li {
+      background-color: #f0f0f0;
+      border-radius: 4px;
+      padding: 2px 8px;
+      margin-bottom: 5px;
+      display: inline-block;
+      font-size: 9pt;
+      color: #333;
+    }
+    .languages-list span {
+      margin-right: 15px;
+    }
+  `;
 
-  const handleDownload = () => {
-    if (resumeContent) {
-      const blob = new Blob([resumeContent], { type: 'text/markdown;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'resume.md';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+  const handlePrint = () => {
+    if (!resumeContent) return;
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Resume</title>
+            <style>${resumeStyles}</style>
+          </head>
+          <body>
+            ${resumeContent}
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 250);
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Print Failed",
+        description: "Please allow pop-ups for this site to print the resume.",
+      });
     }
   };
 
@@ -55,10 +148,11 @@ export function ResumeViewDialog({ open, onOpenChange, resumeContent, isLoading 
         <DialogHeader>
           <DialogTitle>AI-Generated Resume</DialogTitle>
           <DialogDescription>
-            Here is a resume generated in Markdown format. You can copy it or download it as a .md file.
+            This is a professionally formatted resume. You can print it or save it as a PDF.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="h-[60vh] rounded-md border p-4">
+        <style>{resumeStyles}</style>
+        <ScrollArea className="h-[60vh] rounded-md border p-4 bg-white">
           {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-6 w-1/3" />
@@ -77,7 +171,7 @@ export function ResumeViewDialog({ open, onOpenChange, resumeContent, isLoading 
               </div>
             </div>
           ) : resumeContent ? (
-            <pre className="text-sm whitespace-pre-wrap font-mono">{resumeContent}</pre>
+            <div dangerouslySetInnerHTML={{ __html: resumeContent }} />
           ) : (
              <div className="text-center text-muted-foreground py-8">
                 Sorry, there was an error generating the resume. Please try again.
@@ -85,13 +179,9 @@ export function ResumeViewDialog({ open, onOpenChange, resumeContent, isLoading 
           )}
         </ScrollArea>
         <DialogFooter className="gap-2 sm:justify-end">
-            <Button variant="outline" onClick={handleCopy} disabled={isLoading || !resumeContent}>
-                {hasCopied ? <Check className="mr-2"/> : <Copy className="mr-2"/>}
-                {hasCopied ? "Copied!" : "Copy Markdown"}
-            </Button>
-            <Button onClick={handleDownload} disabled={isLoading || !resumeContent}>
-                <Download className="mr-2"/>
-                Download .md
+            <Button onClick={handlePrint} disabled={isLoading || !resumeContent}>
+                <Printer className="mr-2 h-4 w-4"/>
+                Print / Save as PDF
             </Button>
         </DialogFooter>
       </DialogContent>
