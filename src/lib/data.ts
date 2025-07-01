@@ -2,6 +2,7 @@
 import { Github, Linkedin, Mail } from 'lucide-react';
 
 export type Project = {
+  id?: string;
   title: string;
   description: string;
   image: string;
@@ -9,8 +10,6 @@ export type Project = {
   link: string;
   aiHint: string;
 };
-
-export const projects: Project[] = [];
 
 export const skills = [
   'JavaScript', 'TypeScript', 'React', 'Next.js', 'Node.js',

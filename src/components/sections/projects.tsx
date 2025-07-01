@@ -1,15 +1,18 @@
 
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { WheelEvent } from "react";
 import { ProjectCard } from "@/components/project-card";
-import { projects as initialProjects, type Project } from "@/lib/data";
+import { type Project } from "@/lib/data";
 import { motion } from "framer-motion";
 import { ArrowDown, Shield, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AdminLoginDialog } from "@/components/admin-login-dialog";
 import { ProjectEditDialog } from "@/components/project-edit-dialog";
+import { db } from "@/lib/firebase";
+import { collection, getDocs, addDoc, updateDoc, doc } from "firebase/firestore";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function Projects() {
   const FADE_UP_ANIMATION_VARIANTS = {
@@ -22,11 +25,29 @@ export function Projects() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isProjectFormOpen, setIsProjectFormOpen] = useState(false);
   
   const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [editingProjectIndex, setEditingProjectIndex] = useState<number | null>(null);
+
+  const fetchProjects = async () => {
+    setLoading(true);
+    try {
+      const projectsCollection = collection(db, 'projects');
+      const projectSnapshot = await getDocs(projectsCollection);
+      const projectList = projectSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
+      setProjects(projectList);
+    } catch (error) {
+      console.error("Error fetching projects: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
 
   const onWheel = (e: WheelEvent<HTMLDivElement>) => {
     const el = sectionRef.current;
@@ -56,30 +77,33 @@ export function Projects() {
 
   const handleAddNewProject = () => {
     setEditingProject(null);
-    setEditingProjectIndex(null);
     setIsProjectFormOpen(true);
   };
   
-  const handleEditProject = (project: Project, index: number) => {
+  const handleEditProject = (project: Project) => {
     setEditingProject(project);
-    setEditingProjectIndex(index);
     setIsProjectFormOpen(true);
   };
   
-  const handleSubmitProject = (submittedProjectData: Project) => {
-    if (editingProjectIndex !== null) {
-      // Editing existing project
-      const newProjects = [...projects];
-      newProjects[editingProjectIndex] = submittedProjectData;
-      setProjects(newProjects);
-    } else {
-      // Adding new project
-      setProjects((prevProjects) => [submittedProjectData, ...prevProjects]);
+  const handleSubmitProject = async (submittedProjectData: Project) => {
+    try {
+      if (editingProject && editingProject.id) {
+        // Editing existing project
+        const projectRef = doc(db, 'projects', editingProject.id);
+        const { id, ...dataToUpdate } = submittedProjectData;
+        await updateDoc(projectRef, dataToUpdate);
+      } else {
+        // Adding new project
+        await addDoc(collection(db, 'projects'), submittedProjectData);
+      }
+    } catch (error) {
+        console.error("Error saving project: ", error);
+    } finally {
+        // Reset state, close form, and refetch projects
+        setEditingProject(null);
+        setIsProjectFormOpen(false);
+        fetchProjects();
     }
-    // Reset state and close form
-    setEditingProject(null);
-    setEditingProjectIndex(null);
-    setIsProjectFormOpen(false);
   };
 
   return (
@@ -149,19 +173,36 @@ export function Projects() {
           <div 
             className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 mt-12 relative z-20"
           >
-            {projects.map((project, i) => (
-              <motion.div
-                key={`${project.title}-${i}`}
-                variants={FADE_UP_ANIMATION_VARIANTS}
-                custom={i}
-              >
-                <ProjectCard
-                  {...project}
-                  isAdmin={isAdmin}
-                  onEdit={() => handleEditProject(project, i)}
-                />
-              </motion.div>
-            ))}
+            {loading ? (
+              Array.from({ length: 2 }).map((_, i) => (
+                <motion.div key={i} variants={FADE_UP_ANIMATION_VARIANTS}>
+                    <div className="flex flex-col h-full rounded-lg border bg-card shadow-sm p-6 space-y-4">
+                      <Skeleton className="aspect-video w-full" />
+                      <Skeleton className="h-6 w-3/4" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-5/6" />
+                      <div className="flex flex-wrap gap-2 pt-4">
+                          <Skeleton className="h-6 w-1/4" />
+                          <Skeleton className="h-6 w-1/4" />
+                      </div>
+                    </div>
+                </motion.div>
+              ))
+            ) : (
+                projects.map((project, i) => (
+                  <motion.div
+                    key={project.id || i}
+                    variants={FADE_UP_ANIMATION_VARIANTS}
+                    custom={i}
+                  >
+                    <ProjectCard
+                      {...project}
+                      isAdmin={isAdmin}
+                      onEdit={() => handleEditProject(project)}
+                    />
+                  </motion.div>
+                ))
+            )}
           </div>
         </div>
       </div>
