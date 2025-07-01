@@ -15,72 +15,44 @@ const sections = [
 ];
 
 export default function Home() {
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
-  });
-
-  // This creates a stepped progress, e.g., for 4 sections: 0, 0.25, 0.5, 0.75
-  const sectionProgress = useTransform(scrollYProgress, (latest) => {
-    const numSections = sections.length;
-    return Math.floor(latest * numSections) / numSections;
+    offset: ["start start", "end end"],
   });
 
   return (
-    <div ref={containerRef} style={{ perspective: '1000px' }}>
-      <div style={{ height: `${sections.length * 100}vh` }} />
-      {sections.map((section, i) => {
-        const progressStart = i / sections.length;
-        const progressEnd = (i + 1) / sections.length;
+    <div ref={containerRef} style={{ height: `${sections.length * 100}vh` }} className="bg-background">
+      <div className="sticky top-0 h-screen" style={{ perspective: '1200px' }}>
+        {sections.map((section, i) => {
+          const numSections = sections.length;
+          
+          const sectionStart = i / numSections;
+          const sectionEnd = (i + 1) / numSections;
+          const prevSectionStart = (i - 1) / numSections;
+          
+          const inputRange = [prevSectionStart, sectionStart, sectionEnd];
 
-        const scale = useTransform(
-          scrollYProgress,
-          [progressStart, progressEnd],
-          [1, 0.5]
-        );
-        const opacity = useTransform(
-          scrollYProgress,
-          [progressStart, progressEnd],
-          [1, 0]
-        );
-        const zIndex = useTransform(scrollYProgress, (latest) =>
-          latest >= progressStart && latest < progressEnd ? 1 : 0
-        );
-
-        // For the incoming slide
-        const incomingScale = useTransform(
-          scrollYProgress,
-          [progressStart - 0.1, progressStart],
-          [0.5, 1]
-        );
-        const incomingOpacity = useTransform(
-          scrollYProgress,
-          [progressStart - 0.1, progressStart],
-          [0, 1]
-        );
-
-        const currentScale = useTransform(scrollYProgress, (latest) =>
-          latest >= progressStart ? scale.get() : incomingScale.get()
-        );
-        const currentOpacity = useTransform(scrollYProgress, (latest) =>
-          latest >= progressStart ? opacity.get() : incomingOpacity.get()
-        );
-        
-        return (
-          <motion.div
-            key={section.id}
-            id={section.id}
-            className="fixed top-0 left-0 w-full h-screen"
-            style={{
-              scale: currentScale,
-              opacity: currentOpacity,
-              zIndex,
-            }}
-          >
-            {section.component}
-          </motion.div>
-        );
-      })}
+          const opacity = useTransform(scrollYProgress, inputRange, [0, 1, 0]);
+          const scale = useTransform(scrollYProgress, inputRange, [0.8, 1, 0.8]);
+          const z = useTransform(scrollYProgress, inputRange, [-800, 0, -800]);
+          
+          return (
+            <motion.div
+              key={section.id}
+              id={section.id}
+              className="absolute top-0 left-0 w-full h-screen"
+              style={{
+                opacity,
+                scale,
+                z,
+              }}
+            >
+              {section.component}
+            </motion.div>
+          );
+        })}
+      </div>
     </div>
   );
 }
