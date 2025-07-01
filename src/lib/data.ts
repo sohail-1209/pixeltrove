@@ -1,5 +1,5 @@
 
-import { Github, Linkedin, Mail } from 'lucide-react';
+import { Github, Instagram, Mail } from 'lucide-react';
 
 export type Project = {
   id?: string;
@@ -19,17 +19,17 @@ export const skills = [
 export const socialLinks = [
   {
     name: 'GitHub',
-    url: '#',
+    url: 'https://github.com/sohail-1209',
     icon: Github,
   },
   {
-    name: 'LinkedIn',
-    url: '#',
-    icon: Linkedin,
+    name: 'Instagram',
+    url: 'https://www.instagram.com/_sohail_beast',
+    icon: Instagram,
   },
   {
     name: 'Email',
-    url: 'mailto:hello@example.com',
+    url: 'mailto:sohailpashe@gmail.com',
     icon: Mail,
   },
 ];
