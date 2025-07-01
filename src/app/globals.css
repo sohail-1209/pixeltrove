@@ -83,4 +83,25 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
   }
+  
+  .glitch {
+    @apply relative cursor-pointer z-10;
+  }
+  .glitch:before,
+  .glitch:after {
+    content: attr(data-text);
+    @apply absolute inset-0 w-full h-full;
+    @apply bg-background;
+    @apply bg-clip-text text-transparent;
+  }
+  .glitch:hover:before {
+    @apply animate-glitch-1;
+    left: 2px;
+    text-shadow: -2px 0 hsl(var(--violet-accent));
+  }
+  .glitch:hover:after {
+    @apply animate-glitch-2;
+    left: -2px;
+    text-shadow: -2px 0 hsl(var(--accent)), 2px 2px hsl(var(--pink-accent));
+  }
 }
