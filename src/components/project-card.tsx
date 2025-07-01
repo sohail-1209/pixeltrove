@@ -21,8 +21,6 @@ interface ProjectCardProps {
   aiHint: string;
 }
 
-const MotionCard = motion(Card);
-
 export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, tags, link, aiHint }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -48,72 +46,80 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
 
   const handleFlip = (e: MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     setIsFlipped((prev) => !prev);
   };
 
   return (
-    <MotionCard
+    <div
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{
-        rotateX,
-        rotateY,
-        transformStyle: "preserve-3d",
-      }}
-      className="relative overflow-visible h-full group bg-transparent border-none shadow-none"
+      style={{ perspective: "2000px" }}
+      className="w-full h-full"
     >
       <motion.div
-        className="relative w-full h-full"
-        style={{ transformStyle: "preserve-3d" }}
-        animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ duration: 0.7, ease: "easeInOut" }}
+        style={{
+          rotateX,
+          rotateY,
+          transformStyle: "preserve-3d",
+        }}
+        className="w-full h-full"
       >
-        {/* FRONT OF CARD */}
-        <div className="absolute w-full h-full rounded-lg border bg-card text-card-foreground shadow-sm [backface-visibility:hidden] flex flex-col overflow-hidden">
-          <div style={{ transform: "translateZ(20px)" }}>
-            <CardHeader className="p-0">
-              <div className="aspect-video overflow-hidden">
-                <Image
-                  src={image}
-                  alt={title}
-                  width={600}
-                  height={400}
-                  data-ai-hint={aiHint}
-                  className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-                />
+        <motion.div
+          className="relative w-full h-full"
+          style={{ transformStyle: "preserve-3d" }}
+          animate={{ rotateY: isFlipped ? 180 : 0 }}
+          transition={{ duration: 0.7, ease: "easeInOut" }}
+        >
+          {/* FRONT OF CARD - Stays in the document flow to define height */}
+          <div className="w-full h-full [backface-visibility:hidden]">
+            <Card className="h-full flex flex-col group">
+              <div style={{ transform: "translateZ(20px)" }}>
+                <CardHeader className="p-0">
+                  <div className="aspect-video overflow-hidden rounded-t-lg">
+                    <Image
+                      src={image}
+                      alt={title}
+                      width={600}
+                      height={400}
+                      data-ai-hint={aiHint}
+                      className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                </CardHeader>
               </div>
-            </CardHeader>
+              <CardContent className="p-6 flex-grow" style={{ transform: "translateZ(40px)"}}>
+                <CardTitle className="mb-2 text-xl font-bold font-headline">{title}</CardTitle>
+                <p className="text-muted-foreground">{description}</p>
+              </CardContent>
+              <CardFooter className="p-6 pt-0 flex flex-col items-start gap-4" style={{ transform: "translateZ(30px)"}}>
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag) => (
+                    <Badge key={tag} variant="secondary">{tag}</Badge>
+                  ))}
+                </div>
+                <div className="flex justify-between items-center w-full mt-auto">
+                  <Link href={link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm font-medium text-accent hover:underline">
+                    View Project
+                    <ArrowUpRight className="ml-1 h-4 w-4" />
+                  </Link>
+                  <Button variant="ghost" size="icon" onClick={handleFlip} aria-label="Rotate Card">
+                    <Rotate3d className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
+                  </Button>
+                </div>
+              </CardFooter>
+            </Card>
           </div>
-          <CardContent className="p-6 flex-grow" style={{ transform: "translateZ(40px)"}}>
-            <CardTitle className="mb-2 text-xl font-bold font-headline">{title}</CardTitle>
-            <p className="text-muted-foreground">{description}</p>
-          </CardContent>
-          <CardFooter className="p-6 pt-0 flex flex-col items-start gap-4" style={{ transform: "translateZ(30px)"}}>
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <Badge key={tag} variant="secondary">{tag}</Badge>
-              ))}
-            </div>
-            <div className="flex justify-between items-center w-full mt-auto">
-              <Link href={link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm font-medium text-accent hover:underline">
-                View Project
-                <ArrowUpRight className="ml-1 h-4 w-4" />
-              </Link>
-              <Button variant="ghost" size="icon" onClick={handleFlip} aria-label="Rotate Card">
-                <Rotate3d className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
-              </Button>
-            </div>
-          </CardFooter>
-        </div>
 
-        {/* BACK OF CARD */}
-        <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
-          <WireframeBack />
-           <Button variant="ghost" size="icon" onClick={handleFlip} aria-label="Rotate Card" className="absolute bottom-4 right-4 z-10">
-                <Rotate3d className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
+          {/* BACK OF CARD - Positioned absolutely to overlay the front */}
+          <div className="absolute top-0 left-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
+            <WireframeBack />
+            <Button variant="ghost" size="icon" onClick={handleFlip} aria-label="Rotate Card" className="absolute bottom-4 right-4 z-10">
+              <Rotate3d className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
             </Button>
-        </div>
+          </div>
+        </motion.div>
       </motion.div>
-    </MotionCard>
+    </div>
   );
 };
