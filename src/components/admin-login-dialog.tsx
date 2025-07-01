@@ -83,7 +83,7 @@ export function AdminLoginDialog({ open, onOpenChange, onLoginSuccess }: AdminLo
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="sohail" {...field} />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -96,7 +96,7 @@ export function AdminLoginDialog({ open, onOpenChange, onLoginSuccess }: AdminLo
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="sohail" {...field} />
+                    <Input type="password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
