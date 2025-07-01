@@ -74,7 +74,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
           {/* FRONT OF CARD - Stays in the document flow to define height */}
           <div className="w-full h-full [backface-visibility:hidden]">
             <Card className="h-full flex flex-col group">
-              <div style={{ transform: "translateZ(20px)" }}>
+              <div>
                 <CardHeader className="p-0">
                   <div className="aspect-video overflow-hidden rounded-t-lg">
                     <Image
@@ -88,11 +88,11 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
                   </div>
                 </CardHeader>
               </div>
-              <CardContent className="p-6 flex-grow" style={{ transform: "translateZ(40px)"}}>
+              <CardContent className="p-6 flex-grow">
                 <CardTitle className="mb-2 text-xl font-bold font-headline">{title}</CardTitle>
                 <p className="text-muted-foreground">{description}</p>
               </CardContent>
-              <CardFooter className="p-6 pt-0 flex flex-col items-start gap-4" style={{ transform: "translateZ(30px)"}}>
+              <CardFooter className="p-6 pt-0 flex flex-col items-start gap-4">
                 <div className="flex flex-wrap gap-2">
                   {tags.map((tag) => (
                     <Badge key={tag} variant="secondary">{tag}</Badge>
