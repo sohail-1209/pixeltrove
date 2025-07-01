@@ -24,7 +24,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { Project } from "@/lib/data";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { refineProject } from "@/ai/flows/refine-project-flow";
+import { LoaderCircle, Wand2 } from "lucide-react";
 
 const projectSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -48,6 +51,8 @@ export function ProjectEditDialog({ open, onOpenChange, onSubmit, project }: Pro
   const form = useForm<ProjectSchema>({
     resolver: zodResolver(projectSchema),
   });
+  const [isRefining, setIsRefining] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (open) {
@@ -69,6 +74,39 @@ export function ProjectEditDialog({ open, onOpenChange, onSubmit, project }: Pro
     }
   }, [project, open, form]);
 
+  const handleRefineWithAI = async () => {
+    setIsRefining(true);
+    try {
+      const currentData = form.getValues();
+      const tagsArray = currentData.tags.split(',').map(tag => tag.trim()).filter(Boolean);
+
+      const refinedData = await refineProject({
+        title: currentData.title,
+        description: currentData.description,
+        tags: tagsArray,
+      });
+      
+      form.setValue('title', refinedData.refinedTitle, { shouldValidate: true });
+      form.setValue('description', refinedData.refinedDescription, { shouldValidate: true });
+      form.setValue('tags', refinedData.refinedTags.join(', '), { shouldValidate: true });
+
+      toast({
+        title: "Content refined!",
+        description: "AI has updated the project details.",
+      });
+
+    } catch (error) {
+      console.error("AI refinement failed:", error);
+      toast({
+        variant: "destructive",
+        title: "AI Refinement Failed",
+        description: "Could not refine the content. Please try again.",
+      });
+    } finally {
+      setIsRefining(false);
+    }
+  };
+  
   const handleFormSubmit = (data: ProjectSchema) => {
     const projectDataForFirestore = {
       title: data.title,
@@ -85,10 +123,18 @@ export function ProjectEditDialog({ open, onOpenChange, onSubmit, project }: Pro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
-          <DialogTitle>{project ? "Edit Project" : "Add New Project"}</DialogTitle>
-          <DialogDescription>
-            {project ? "Make changes to your project here." : "Fill in the details for your new project."} Click save when you're done.
-          </DialogDescription>
+          <div className="flex justify-between items-start">
+            <div>
+              <DialogTitle>{project ? "Edit Project" : "Add New Project"}</DialogTitle>
+              <DialogDescription>
+                {project ? "Make changes to your project here." : "Fill in the details for your new project."} Click save when you're done.
+              </DialogDescription>
+            </div>
+            <Button type="button" variant="outline" size="sm" onClick={handleRefineWithAI} disabled={isRefining} className="shrink-0">
+              {isRefining ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+              Refine
+            </Button>
+          </div>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto pr-4">
