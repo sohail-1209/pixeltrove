@@ -32,14 +32,15 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
   };
 
   return (
-    <div className="w-full h-full [perspective:1000px]">
+    <div className="w-full [perspective:1000px]">
       <motion.div
-        className="relative w-full h-full [transform-style:preserve-3d]"
+        className="relative w-full [transform-style:preserve-3d]"
         animate={{ rotateY: isFlipped ? 180 : 0 }}
         transition={{ duration: 0.6 }}
+        style={{ minHeight: '450px' }}
       >
         {/* Front Face */}
-        <div className="absolute w-full h-full [backface-visibility:hidden]">
+        <div className="[backface-visibility:hidden]">
           <Card className="h-full flex flex-col group">
             <CardHeader className="p-0">
               <div className="aspect-video overflow-hidden rounded-t-lg">
@@ -84,7 +85,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
         </div>
 
         {/* Back Face */}
-        <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
+        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]">
           <div className="relative w-full h-full">
             <WireframeBack />
             <div className="absolute top-2 right-2 z-10">
