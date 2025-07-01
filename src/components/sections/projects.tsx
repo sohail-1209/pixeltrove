@@ -184,6 +184,20 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
   };
   
   const handleSubmitProject = async (submittedProjectData: Omit<Project, 'id'>) => {
+    // Check for duplicate titles (case-insensitive)
+    const isDuplicate = projects.some(
+      (p) => p.title.toLowerCase() === submittedProjectData.title.toLowerCase() && p.id !== editingProject?.id
+    );
+
+    if (isDuplicate) {
+      toast({
+        variant: "destructive",
+        title: "Duplicate Project",
+        description: "A project with this title already exists. Please choose a different title.",
+      });
+      return; // Stop the submission
+    }
+
     try {
       let currentProjects = projects;
       if (editingProject && editingProject.id) {
