@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef } from "react";
+import type { WheelEvent } from "react";
 import { ProjectCard } from "@/components/project-card";
 import { projects } from "@/lib/data";
 import { motion } from "framer-motion";
@@ -10,8 +12,32 @@ export function Projects() {
     show: { opacity: 1, y: 0, transition: { type: 'spring' } },
   };
 
+  const sectionRef = useRef<HTMLElement>(null);
+
+  const onWheel = (e: WheelEvent) => {
+    const el = sectionRef.current;
+    if (el) {
+      if (el.scrollHeight <= el.clientHeight) {
+        return;
+      }
+
+      const isScrollingUp = e.deltaY < 0;
+      const isScrollingDown = e.deltaY > 0;
+      const isAtTop = el.scrollTop === 0;
+      const isAtBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + 1;
+
+      if ((isAtTop && isScrollingUp) || (isAtBottom && isScrollingDown)) {
+        return;
+      }
+
+      e.stopPropagation();
+    }
+  };
+
   return (
     <motion.section
+      ref={sectionRef}
+      onWheel={onWheel}
       initial="hidden"
       whileInView="show"
       viewport={{ once: true }}
