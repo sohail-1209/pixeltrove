@@ -120,8 +120,8 @@ export function About() {
         <div className="container px-4 md:px-6">
           <div className="grid gap-10 lg:grid-cols-2 items-center">
             <div className="space-y-4">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">About Me</h2>
-              <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline font-handwriting">About Me</h2>
+              <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed font-handwriting">
                 I'm a passionate developer who builds beautiful and functional web applications. I thrive on solving complex problems and creating elegant digital experiences with a focus on clean code and user-centric design.
               </p>
             </div>

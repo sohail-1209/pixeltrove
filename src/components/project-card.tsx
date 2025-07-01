@@ -250,8 +250,8 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
                       className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
-                  <CardTitle className="mb-2 text-xl font-bold font-headline">{title}</CardTitle>
-                  <p className="text-muted-foreground">{description}</p>
+                  <CardTitle className="mb-2 text-xl font-bold font-headline font-handwriting">{title}</CardTitle>
+                  <p className="text-muted-foreground font-handwriting">{description}</p>
                 </CardContent>
                 <CardFooter className="p-6 pt-0 flex flex-col items-start gap-4">
                   <div className="flex flex-wrap gap-2">
