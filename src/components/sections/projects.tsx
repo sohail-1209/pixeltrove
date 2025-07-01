@@ -5,6 +5,7 @@ import type { WheelEvent } from "react";
 import { ProjectCard } from "@/components/project-card";
 import { projects } from "@/lib/data";
 import { motion } from "framer-motion";
+import { ArrowDown } from "lucide-react";
 
 export function Projects() {
   const FADE_UP_ANIMATION_VARIANTS = {
@@ -51,8 +52,23 @@ export function Projects() {
           },
         },
       }}
-      className="w-full h-screen overflow-y-auto py-24"
+      className="relative w-full h-screen overflow-y-auto py-24"
     >
+      <div className="absolute top-1/2 right-4 md:right-8 -translate-y-1/2 flex flex-col items-center gap-4 text-muted-foreground z-10 pointer-events-none">
+        <span className="text-xs font-semibold tracking-widest uppercase [writing-mode:vertical-rl] transform rotate-180">
+          Scroll
+        </span>
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            repeatType: "loop",
+          }}
+        >
+          <ArrowDown className="w-4 h-4" />
+        </motion.div>
+      </div>
       <div className="container px-4 md:px-6">
         <motion.div
           variants={FADE_UP_ANIMATION_VARIANTS}
