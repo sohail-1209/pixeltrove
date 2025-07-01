@@ -13,6 +13,7 @@ import { ProjectEditDialog } from "@/components/project-edit-dialog";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, updateDoc, doc } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 
 export function Projects() {
   const FADE_UP_ANIMATION_VARIANTS = {
@@ -30,6 +31,7 @@ export function Projects() {
   const [isProjectFormOpen, setIsProjectFormOpen] = useState(false);
   
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const { toast } = useToast();
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -60,6 +62,11 @@ export function Projects() {
       setProjects(projectList);
     } catch (error) {
       console.error("Error fetching projects: ", error);
+      toast({
+        variant: "destructive",
+        title: "Failed to load projects",
+        description: "Please check your Firestore security rules and browser console for more details.",
+      });
     } finally {
       setLoading(false);
     }
