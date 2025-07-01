@@ -6,6 +6,7 @@ import { About } from "@/components/sections/about";
 import { Contact } from "@/components/sections/contact";
 import { useScroll, motion, useTransform, type MotionValue } from "framer-motion";
 import { useRef } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const sections = [
   { id: "hero", component: Hero, scrollFactor: 1.5 },
@@ -18,6 +19,7 @@ const totalScrollFactor = sections.reduce((sum, s) => sum + s.scrollFactor, 0);
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
@@ -31,9 +33,10 @@ export default function Home() {
     return acc;
   }, [] as { start: number; end: number }[]);
 
+  const heightFactor = isMobile ? 100 : 150;
 
   return (
-    <div ref={containerRef} style={{ height: `${totalScrollFactor * 150}vh` }} className="bg-background">
+    <div ref={containerRef} style={{ height: `${totalScrollFactor * heightFactor}vh` }} className="bg-background">
       <div className="sticky top-0 h-screen" style={{ perspective: '1200px' }}>
         {sections.map((section, i) => {
           const { start, end } = sectionProgressPoints[i];
