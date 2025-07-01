@@ -5,7 +5,7 @@ import { useState, type FC, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUpRight, Pencil, RefreshCw, Trash2, Wand2 } from 'lucide-react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from './ui/button';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
@@ -124,8 +124,8 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
             {/* Front Face */}
             <div className="[backface-visibility:hidden]">
               <Card className="h-full flex flex-col group">
-                <CardHeader className="p-0">
-                  <div className="aspect-video overflow-hidden rounded-t-lg">
+                <CardContent className="p-6 flex-grow">
+                  <div className="aspect-video overflow-hidden clip-hexagon mb-4">
                     <Image
                       src={image}
                       alt={title}
@@ -135,8 +135,6 @@ export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, t
                       className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
-                </CardHeader>
-                <CardContent className="p-6 flex-grow">
                   <CardTitle className="mb-2 text-xl font-bold font-headline">{title}</CardTitle>
                   <p className="text-muted-foreground">{description}</p>
                 </CardContent>
