@@ -122,6 +122,7 @@ export function Projects({ scrollProgress }: { scrollProgress?: MotionValue<numb
     setIsAdmin(true);
     try {
       localStorage.setItem('isAdmin', 'true');
+      window.dispatchEvent(new Event('admin-status-change'));
     } catch (error) {
       console.warn('Could not save admin status to localStorage', error);
     }

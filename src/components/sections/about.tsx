@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -57,6 +58,21 @@ export function About() {
     };
     
     checkAdminAndFetchSkills();
+
+    const handleAdminStatusChange = () => {
+      try {
+        const adminStatus = localStorage.getItem('isAdmin') === 'true';
+        setIsAdmin(adminStatus);
+      } catch (error) {
+        console.warn('Could not read admin status from localStorage', error);
+      }
+    };
+
+    window.addEventListener('admin-status-change', handleAdminStatusChange);
+
+    return () => {
+      window.removeEventListener('admin-status-change', handleAdminStatusChange);
+    };
   }, [toast]);
 
   const handleSkillsSubmit = async (newSkills: string[]) => {
