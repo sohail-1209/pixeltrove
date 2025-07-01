@@ -37,7 +37,10 @@ export function Projects() {
             </p>
           </div>
         </motion.div>
-        <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 mt-12">
+        <div 
+          className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 mt-12"
+          style={{ perspective: "2000px" }}
+        >
           {projects.map((project, i) => (
             <motion.div
               key={project.title}

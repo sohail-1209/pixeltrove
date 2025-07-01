@@ -1,13 +1,13 @@
 "use client";
 
-import type { FC } from 'react';
+import type { FC, MouseEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CardTitle } from '@/components/ui/card';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 interface ProjectCardProps {
   title: string;
@@ -19,13 +19,41 @@ interface ProjectCardProps {
 }
 
 export const ProjectCard: FC<ProjectCardProps> = ({ title, description, image, tags, link, aiHint }) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseX = useSpring(x, { stiffness: 100, damping: 15, restDelta: 0.001 });
+  const mouseY = useSpring(y, { stiffness: 100, damping: 15, restDelta: 0.001 });
+
+  const rotateX = useTransform(mouseY, [-150, 150], ["8deg", "-8deg"]);
+  const rotateY = useTransform(mouseX, [-150, 150], ["-8deg", "8deg"]);
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    x.set(e.clientX - left - width / 2);
+    y.set(e.clientY - top - height / 2);
+  };
+  
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
   return (
     <motion.div
-      whileHover={{ y: -5 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-      className="h-full"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+      }}
+      className="h-full w-full"
     >
-      <Card className="flex flex-col overflow-hidden h-full group hover:border-accent/70 shadow-md hover:shadow-accent/20">
+      <Card 
+        className="flex flex-col overflow-hidden h-full group shadow-md"
+        style={{ transformStyle: 'preserve-3d', transform: 'translateZ(1px)' }}
+      >
         <CardHeader className="p-0">
           <div className="aspect-video overflow-hidden">
             <Image
