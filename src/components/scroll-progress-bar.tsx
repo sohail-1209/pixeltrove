@@ -7,7 +7,7 @@ export function ScrollProgressBar() {
 
   return (
     <motion.div
-      className="fixed top-0 right-0 h-full w-1.5 bg-pink_accent origin-top z-50 animate-pulse-glow-pink"
+      className="fixed top-0 right-0 h-full w-1 bg-pink_accent origin-top z-50 animate-pulse-glow-pink"
       style={{ scaleY: scrollYProgress }}
     />
   );
