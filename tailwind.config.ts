@@ -43,6 +43,7 @@ export default {
           foreground: 'hsl(var(--accent-foreground))',
         },
         pink_accent: 'hsl(var(--pink-accent))',
+        violet_accent: 'hsl(var(--violet-accent))',
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',

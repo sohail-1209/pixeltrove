@@ -25,7 +25,7 @@ export function SparklingText({
       {/* The text itself */}
       <h1 className="text-4xl font-black tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl/none font-headline
         bg-clip-text text-transparent 
-        bg-gradient-to-r from-neutral-400 via-neutral-100 to-neutral-400
+        bg-gradient-to-r from-pink_accent via-violet_accent to-accent
         animate-shine-light bg-[length:200%_auto] z-10
       ">
         {children}
