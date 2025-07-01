@@ -110,17 +110,12 @@ export default {
               boxShadow: '0 0 10px 2px hsl(var(--pink-accent)), 0 0 14px 2px hsl(var(--pink-accent) / 0.7)',
           },
         },
-        'shine-light': {
-          '0%': { backgroundPosition: '200% 0' },
-          '100%': { backgroundPosition: '-200% 0' },
-        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'pulse-glow': 'pulse-glow 2.5s ease-in-out infinite',
         'pulse-glow-pink': 'pulse-glow-pink 2.5s ease-in-out infinite',
-        'shine-light': 'shine-light 5s linear infinite',
       },
     },
   },
