@@ -13,7 +13,7 @@ export default {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
         headline: ['"Edu QLD Hand"', 'cursive'],
-        handwriting: ['"Edu QLD Hand"', 'cursive'],
+        handwriting: ['Truculenta', 'sans-serif'],
         code: ['monospace'],
         saira: ['Saira', 'sans-serif'],
       },
