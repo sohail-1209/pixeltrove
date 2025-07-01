@@ -6,6 +6,7 @@ import { ArrowDown, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { SparklingText } from '../sparkling-text';
+import { AiSymbol } from '../ai-symbol';
 
 export function Hero() {
   const FADE_DOWN_ANIMATION_VARIANTS = {
@@ -29,7 +30,10 @@ export function Hero() {
       className="relative w-full h-screen min-h-[600px] flex items-center justify-center bg-background"
     >
       <div className="container px-4 md:px-6 text-center">
-        <div className="space-y-4">
+        <div className="flex flex-col items-center space-y-6">
+          <motion.div variants={FADE_DOWN_ANIMATION_VARIANTS}>
+            <AiSymbol />
+          </motion.div>
           <motion.div variants={FADE_DOWN_ANIMATION_VARIANTS}>
             <SparklingText>
               Creative Developer & Designer
