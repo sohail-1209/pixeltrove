@@ -4,7 +4,6 @@
 import { useEffect, useState } from "react";
 import { ProjectCard } from "@/components/project-card";
 import { type Project } from "@/lib/data";
-import { motion } from "framer-motion";
 import { Shield, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AdminLoginDialog } from "@/components/admin-login-dialog";
@@ -15,11 +14,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 
 export function Projects() {
-  const FADE_UP_ANIMATION_VARIANTS = {
-    hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring' } },
-  };
-
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   
@@ -91,11 +85,18 @@ export function Projects() {
       if (editingProject && editingProject.id) {
         const projectRef = doc(db, 'projects', editingProject.id);
         await updateDoc(projectRef, submittedProjectData);
+        toast({ title: "Project updated successfully!" });
       } else {
         await addDoc(collection(db, 'projects'), submittedProjectData);
+        toast({ title: "Project added successfully!" });
       }
     } catch (error) {
         console.error("Error saving project: ", error);
+        toast({
+          variant: "destructive",
+          title: "Failed to save project",
+          description: "An error occurred while saving the project.",
+        });
     } finally {
         setEditingProject(null);
         setIsProjectFormOpen(false);
@@ -104,19 +105,8 @@ export function Projects() {
   };
 
   return (
-    <motion.div
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true }}
-      variants={{
-        hidden: {},
-        show: {
-          transition: {
-            staggerChildren: 0.15,
-          },
-        },
-      }}
-      className="relative w-full min-h-screen bg-background"
+    <section
+      className="relative w-full h-screen bg-background overflow-y-auto"
     >
       <AdminLoginDialog open={isLoginOpen} onOpenChange={setIsLoginOpen} onLoginSuccess={handleLoginSuccess} />
       <ProjectEditDialog 
@@ -134,8 +124,7 @@ export function Projects() {
       </div>
 
       <div className="container px-4 md:px-6 py-24">
-          <motion.div
-            variants={FADE_UP_ANIMATION_VARIANTS}
+          <div
             className="flex flex-col items-center justify-center space-y-4 text-center z-20 relative"
           >
             <div className="space-y-2">
@@ -149,7 +138,7 @@ export function Projects() {
                 <Plus className="mr-2 h-4 w-4" /> Add Project
               </Button>
             )}
-          </motion.div>
+          </div>
           <div 
             className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 mt-12 relative z-20"
           >
@@ -189,6 +178,6 @@ export function Projects() {
             )}
           </div>
       </div>
-    </motion.div>
+    </section>
   );
 }
