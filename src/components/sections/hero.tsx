@@ -47,13 +47,13 @@ export function Hero() {
             <TypeAnimation
               sequence={[
                 "I'm Sohail.",
-                2000,
+                3000,
                 "I'm a passionate developer.",
-                2000,
+                3000,
                 "I build beautiful and functional web applications.",
-                2000,
+                3000,
                 "I thrive on solving complex problems.",
-                2000,
+                3000,
               ]}
               wrapper="span"
               speed={50}
