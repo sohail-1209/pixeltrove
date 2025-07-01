@@ -39,7 +39,22 @@ export function Projects() {
       const projectList = projectSnapshot.docs
         .map(doc => {
           if (!doc.exists()) return null;
-          return { id: doc.id, ...doc.data() } as Project;
+          
+          const data = doc.data();
+          // Validate that the document data conforms to the Project type
+          if (
+            typeof data.title !== 'string' ||
+            typeof data.description !== 'string' ||
+            typeof data.image !== 'string' ||
+            !Array.isArray(data.tags) ||
+            typeof data.link !== 'string' ||
+            typeof data.aiHint !== 'string'
+          ) {
+            console.warn(`Skipping malformed project document with id: ${doc.id}`);
+            return null;
+          }
+
+          return { id: doc.id, ...data } as Project;
         })
         .filter((p): p is Project => p !== null);
       setProjects(projectList);
